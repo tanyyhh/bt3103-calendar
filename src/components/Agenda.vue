@@ -65,6 +65,7 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
+import db from "@/fb";
 
 export default {
   data: () => ({
@@ -105,6 +106,27 @@ export default {
   }),
   created() {
       this.setHeight()
+      var vm = this;
+      db.collection("events")
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            const data = {
+              id: doc.id,
+              title: doc.data().title,
+              start: doc.data().start,
+              end: doc.data().end,
+              allDay: doc.data().allDay
+            };
+            console.log(data.start)
+            vm.handleSelect2({
+              start: new Date(data.start),
+              end: new Date(data.end),
+              title: data.title,
+              allDay: data.allDay
+          });
+          });
+        });
   },
   components: { Fullcalendar, ToDoList },
   computed: {
@@ -161,6 +183,7 @@ export default {
     },
 
     handleSelect2(arg) {
+      console.log("test")
       this.$store.commit("ADD_EVENT", {
         id: new Date().getTime(),
         title: arg.title,
@@ -201,6 +224,7 @@ export default {
           "End time" +
           '<input id="swal-input5" class="swal2-input" placeholder="HH:MM:SS">'
       }).then(function(result) {
+        
         if (result.value) {
           var title = document.getElementById("swal-input1").value;
           var start = new Date(
@@ -213,6 +237,7 @@ export default {
               "T" +
               document.getElementById("swal-input5").value
           );
+          
           vm.handleSelect2({
             start: start,
             end: end,
@@ -220,10 +245,60 @@ export default {
             title: title
           });
 
+          vm.submit({
+            start: document.getElementById("swal-input2").value +
+              "T" +
+              document.getElementById("swal-input4").value,
+            end: document.getElementById("swal-input3").value +
+              "T" +
+              document.getElementById("swal-input5").value,
+            allDay: false,
+            title: title
+          });
+
           Swal.fire("Event Added!", "Check the Calendar!", "success");
         }
       });
-    }
+    },
+
+    submit(arg) {
+        const event = {
+          title: arg.title,
+          start: arg.start,
+          end: arg.end,
+          allDay: false
+        };
+
+        db.collection("events")
+          .add(event)
+          .then(() => {
+            this.dialog = false;
+            this.$emit("projectAdded");
+          });
+    },
+
+    created() {
+      console.log("hello")
+      db.collection("events")
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            const data = {
+              id: doc.id,
+              title: doc.data().title,
+              start: doc.data().start,
+              end: doc.data().end
+            };
+            console.log(data)
+            vm.handleSelect2({
+              start: start,
+              end: end,
+              allDay: false,
+              title: title
+          });
+          });
+        });
+  }
   }
 };
 </script>

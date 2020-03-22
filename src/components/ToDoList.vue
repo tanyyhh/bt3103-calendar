@@ -1,25 +1,17 @@
 <template>
     <div class="todolist">
         <header> {{title}} </header>
-        <form @submit.prevent="addTodo">
-            <label for="newTodo"></label>
-            <input v-model="newTodo" type="text" name="newTodo" id="newTodo" value="" placeholder="New task">
-            <button type="submit" name="button">Add Task</button>
-         </form>
-        <button @click="allDone" type="button" name="button">All Done</button>
-        <button @click ='removeAll' type = 'button' name='button2'> Remove All</button>
-        <ul>
-            <li v-for="todo in todos" v-bind:key="todo">
-                <input type="checkbox" v-model="todo.done">
+        <ol>
+            <li v-for="todo in todos" v-bind:key="todo.title">
                 <span :class="{ done: todo.done }"> {{todo.title}} </span>
-                <button @click="removeTodo(todo)" type="button" name="button">Remove</button>
             </li>
-        </ul>
+        </ol>
     </div>
     
 </template>
 
 <script>
+import db from "@/fb";
     export default {
         data() {
             return {
@@ -28,6 +20,21 @@
                 todos: []
             }
         },
+        created() {
+            db.collection("projects")
+                .get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        const data = {
+                        title: doc.data().title,
+                        done: doc.data().status
+                        };
+                        this.todos.push(data);
+                    });
+                });
+            console.log(this.todos)
+        },
+
         methods: {
             addTodo: function() {
                 this.todos.push({

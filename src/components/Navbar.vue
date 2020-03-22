@@ -1,7 +1,7 @@
 <template>
   <nav>
     <v-snackbar v-model="snackbar" :timeout="4000" top color="success">
-      <span>Awesome! You added a new project</span>
+      <span>Awesome! You added a new actvity</span>
       <v-btn flat color="white" @click="snackbar = false">Close</v-btn>
     </v-snackbar>
 
@@ -85,7 +85,7 @@ export default {
       drawer: true,
       links: [
         { icon: "dashboard", text: "Dashboard", route: "/" },
-        { icon: "folder", text: "My Projects", route: "/projects" },
+        { icon: "folder", text: "To-do List", route: "/projects" },
         { icon: "person", text: "Team", route: "/team" },
         { icon: "calendar_today", text: "Calendar", route: "/calendar" }
       ],
