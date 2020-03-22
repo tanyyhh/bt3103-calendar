@@ -1,24 +1,7 @@
 <template>
   <div id="flex-container">
     <div id="left-child-flex">
-      <header>{{title}}</header>
-      <div>
-        <input id="itemForm" v-model="newUser" @keypress.enter="addMember" placeholder="New Member" />
-        <button id='button1' @click="addMember">Add Member</button>
-      </div>
-      <ul id="lst">
-        <li v-for="(item, index) in items" :key="item.name">
-          {{item.text}}
-          <!-- <span :class="item.colorNames">{{item.text}}</span> -->
-          <input id='checkbox1' type="checkbox" checked @click="filter(item.color)" />
-          <button id='button2' @click="deleteMember(index)">Delete</button>
-        </li>
-      </ul>
-      <label for="who" style='font-size: 20px'>Who are you?</label>
-      <select id="who" v-model="selectedUser" @change="setColor(selectedUser)">
-        <option value=""  disabled selected>Please select...</option>
-        <option v-for="member in items" :key="member.color" :value="member" v-text="member.text"></option>
-      </select>
+      <MemberList></MemberList>
     </div>
 
 
@@ -65,6 +48,7 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
+import MemberList from "./MemberList.vue"
 
 export default {
   data: () => ({
@@ -106,7 +90,7 @@ export default {
   created() {
       this.setHeight()
   },
-  components: { Fullcalendar, ToDoList },
+  components: { Fullcalendar, ToDoList, MemberList },
   computed: {
     ...mapGetters(["EVENTS"])
   },
