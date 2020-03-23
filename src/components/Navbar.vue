@@ -6,29 +6,30 @@
     </v-snackbar>
 
     <v-toolbar flat app>
-      <v-toolbar-side-icon
-        @click="drawer = !drawer"
-        class="grey--text"
-      ></v-toolbar-side-icon>
+      <v-toolbar-side-icon v-if="isSignedIn" @click="drawer = !drawer" class="grey--text"></v-toolbar-side-icon>
       <v-toolbar-title class="text-uppercase grey--text">
         <span class="font-weight-light">BT3103</span>
         <span>Project</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
 
+      <v-flex class="right" justify="right">
+        <v-btn v-if="!isSignedIn" text class="right">
+          <router-link to="/signin">Sign in</router-link>
+        </v-btn>
+        <v-btn v-if="!isSignedIn" text class="right">
+          <router-link to="/signup">Sign up</router-link>
+        </v-btn>
+        <v-btn v-if="isSignedIn" text class="right" v-on:click="signOut">Sign out</v-btn>
+      </v-flex>
       <!-- dropdown menu -->
       <v-menu offset-y>
-        <v-btn flat slot="activator" color="grey">
+        <v-btn v-if="isSignedIn" flat slot="activator" color="grey">
           <v-icon left>expand_more</v-icon>
           <span>Menu</span>
         </v-btn>
         <v-list>
-          <v-list-tile
-            v-for="link in links"
-            :key="link.text"
-            router
-            :to="link.route"
-          >
+          <v-list-tile v-for="link in links" :key="link.text" router :to="link.route">
             <v-list-tile-title>{{ link.text }}</v-list-tile-title>
           </v-list-tile>
         </v-list>
@@ -42,7 +43,7 @@
       -->
     </v-toolbar>
 
-    <v-navigation-drawer app v-model="drawer" class="primary">
+    <v-navigation-drawer v-if="isSignedIn" app v-model="drawer" class="primary">
       <v-layout column align-center>
         <v-flex class="mt-5">
           <v-avatar size="100">
@@ -55,19 +56,16 @@
         </v-flex>
       </v-layout>
       <v-list>
-        <v-list-tile
-          v-for="link in links"
-          :key="link.text"
-          router
-          :to="link.route"
-        >
+        <v-list-tile v-for="link in links" :key="link.text" router :to="link.route">
           <v-list-tile-action>
             <v-icon class="white--text">{{ link.icon }}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title class="white--text">{{
+            <v-list-tile-title class="white--text">
+              {{
               link.text
-            }}</v-list-tile-title>
+              }}
+            </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -77,11 +75,14 @@
 
 <script>
 import Popup from "./Popup";
+import firebase from "firebase/app";
 
 export default {
   components: { Popup },
   data() {
     return {
+      isSignedIn: false,
+      currentUser: false,
       drawer: true,
       links: [
         { icon: "dashboard", text: "Dashboard", route: "/" },
@@ -91,7 +92,25 @@ export default {
       ],
       snackbar: false
     };
+  },
+  created() {
+    if (firebase.auth().currentUser) {
+      this.isSignedIn = true;
+      this.currentUser = firebase.auth().currentUser.email;
+    }
+  },
+  methods: {
+    signOut() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.$router.go({ path: this.$router.path });
+        });
+    }
   }
+};
+</script>
 };
 </script>
 
