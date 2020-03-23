@@ -7,18 +7,16 @@
       </v-card-title>
       <v-card-text>
         <v-form class="px-3" ref="form">
-          <v-text-field v-model="id" label="Member id" prepend-icon="person" :rules="inputRules"></v-text-field>
+          <v-text-field v-model="id" label="Member id" prepend-icon="person"></v-text-field>
           <v-text-field
             v-model="name"
             label="Member Name"
             prepend-icon="person"
-            :rules="inputRules"
           ></v-text-field>
           <v-text-field
             v-model="job_scope"
             label="Member Job Scope"
             prepend-icon="person"
-            :rules="inputRules"
           ></v-text-field>
           <v-spacer></v-spacer>
 
@@ -43,10 +41,10 @@ export default {
       content: "",
       due: null,
       menu: false,
-      inputRules: [
-        v => !!v || "This field is required",
-        v => v.length >= 1 || "Minimum length is 1 character"
-      ],
+      // inputRules: [
+      //   v => !!v || "This field is required",
+      //   v => v.length >= 1 || "Minimum length is 1 character"
+      // ],
       dialog: false
     };
   },
@@ -68,6 +66,9 @@ export default {
             this.$emit("projectAdded");
           });
       }
+      this.id = "";
+      this.name = "";
+      this.job_scope = "";
     }
   }
 };

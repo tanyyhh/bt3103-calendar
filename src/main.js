@@ -9,8 +9,8 @@ import firebase from "firebase";
 import "./fb";
 
 Vue.use(firestorePlugin);
-
 Vue.use(VueSimpleAlert);
+
 Vue.config.productionTip = false;
 
 let app;

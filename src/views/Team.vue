@@ -3,7 +3,7 @@
     <h1 class="subheading grey--text">Team</h1>
 
     <v-flex class="mt-4 mb-3">
-      <popup @projectAdded="snackbar = true" />
+      <popup @projectAdded="snackbar=true" />
     </v-flex>
 
     <v-container class="my-5">
@@ -42,9 +42,12 @@ export default {
       snackbar: false
     };
   },
+  firestore: {
+    members: db.collection("members")
+  },
   methods: {
     deleteMember(doc) {
-      if (confirm("Are you sure of deleting this member?")) {
+      if (confirm("Delete this member?")) {
         console.log(doc);
         db.collection("members")
           .doc(doc)
@@ -58,21 +61,6 @@ export default {
       } else {
       }
     }
-  },
-  created() {
-    db.collection("members")
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          const data = {
-            id: doc.id,
-            member_id: doc.data().id,
-            name: doc.data().name,
-            job_scope: doc.data().job_scope
-          };
-          this.members.push(data);
-        });
-      });
   }
 };
 </script>
