@@ -1,49 +1,18 @@
 <template>
   <div id="flex-container">
     <div id="left-child-flex">
-      <header>{{ title }}</header>
-      <div>
-        <input
-          id="itemForm"
-          v-model="newUser"
-          @keypress.enter="addMember"
-          placeholder="New Member"
-        />
-        <button id="button1" @click="addMember">Add Member</button>
-      </div>
-      <ul id="lst">
-        <v-list v-for="(item, index) in items" :key="item.name">
-          {{ item.text }}
-          <!-- <span :class="item.colorNames">{{item.text}}</span> -->
-          <input
-            id="checkbox1"
-            type="checkbox"
-            checked
-            @click="filter(item.color)"
-          />
-          <button id="button2" @click="deleteMember(index)">Delete</button>
-        </v-list>
-      </ul>
-      <label for="who" style="font-size: 20px">Who are you?</label>
-      <select id="who" v-model="selectedUser" @change="setColor(selectedUser)">
-        <option value="" disabled selected>Please select...</option>
-        <option
-          v-for="member in items"
-          :key="member.color"
-          :value="member"
-          v-text="member.text"
-        ></option>
-      </select>
+      <MemberList></MemberList>
     </div>
+
 
     <div id="middle-child-flex">
       <Fullcalendar
         :plugins="calendarPlugins"
         :header="{
-          left: 'title',
-          center: 'dayGridMonth, timeGridWeek',
-          right: 'prev today next'
-        }"
+                    left:'title',
+                    center:'dayGridMonth, timeGridWeek',
+                    right:'prev today next'
+                }"
         :selectable="true"
         :events="EVENTS"
         @select="handleSelect"
@@ -53,7 +22,8 @@
         slotDuration="01:00:00"
         slotEventOverlap="false"
         @eventClick="handleClick"
-      />
+
+        />
     </div>
 
     <div id="right-child-flex">
@@ -78,6 +48,7 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
+import MemberList from "./MemberList.vue"
 
 export default {
   data: () => ({
@@ -117,25 +88,26 @@ export default {
     calHeight: 0
   }),
   created() {
-    this.setHeight();
+      this.setHeight()
   },
-  components: { Fullcalendar, ToDoList },
+  components: { Fullcalendar, ToDoList, MemberList },
   computed: {
     ...mapGetters(["EVENTS"])
   },
   methods: {
     handleClick(arg) {
       // console.log(arg.event.id)
-      if (confirm("Delete event?")) {
-        const isEvent = e => e.id == arg.event.id;
-        const index = this.$store.state.events.findIndex(isEvent);
+    if (confirm("Delete event?")) {
+    const isEvent = (e) => e.id == arg.event.id;
+    const index = this.$store.state.events.findIndex(isEvent);
 
-        this.$store.state.events.splice(index, 1);
-      }
+    this.$store.state.events.splice(index, 1);
+    }
+
     },
-    setHeight() {
-      this.calHeight = window.innerHeight * 0.8;
-    },
+      setHeight() {
+          this.calHeight = window.innerHeight * 0.8;
+      },
     addMember: function() {
       // var input = document.getElementById('itemForm');
       if (this.newUser !== "") {
@@ -246,11 +218,11 @@ export default {
   margin-top: 50px;
   margin-bottom: 10px;
   margin-left: 10px;
-  background-color: aqua;
+  background-color:aqua;
   border: 2px solid darkslategray;
   border-radius: 5px;
   width: 100px;
-  font-size: 15px;
+  font-size:15px
 }
 header {
   background: white;
@@ -279,34 +251,35 @@ header {
   overflow-y: auto;
   max-height: calc(100vh-150px);
 }
-#itemForm {
+#itemForm{
   border: 2px solid darkslategray;
 }
 #button1 {
-  background-color: aqua;
+  background-color:aqua;
   border: 2px solid darkslategray;
   border-radius: 5px;
-  padding: 0px 10px;
+  padding: 0px 10px;  
 }
 
 #button2 {
-  background-color: aqua;
+  background-color:aqua;
   border: 2px solid darkslategray;
   border-radius: 5px;
   padding: 0px 10px;
-  font-size: 15px;
+  font-size:15px;
+
 }
 
-#lst {
+#lst{
   text-align: left;
   font-size: 17px;
 }
 
-#who {
-  background-color: lightgrey;
+#who{
+  background-color: lightgrey
 }
-#checkbox1 {
-  transform: scale(1);
+#checkbox1{
+  transform: scale(1)
 }
 ul {
   background: #f4faf6;
