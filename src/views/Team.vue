@@ -14,6 +14,8 @@
               <div class="subheading" px="30">{{ member.member_id }}</div>
               <div class="subheading">{{ member.name }}</div>
               <div class="grey--text">{{ member.job_scope }}</div>
+              <div :class="member.memberColor.toLowerCase()">{{ member.memberColor }}</div>
+              
             </v-card-text>
             <v-card-actions>
               <v-btn flat color="grey" @click="deleteMember(member.id)">

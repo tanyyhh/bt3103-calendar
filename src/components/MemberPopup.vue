@@ -20,6 +20,16 @@
           ></v-text-field>
           <v-spacer></v-spacer>
 
+          <v-flex xs12 sm6>
+          <v-select
+            v-model="memberColor"
+            :items="colors"
+            label="Select a color"
+            solo
+          ></v-select>
+        </v-flex>
+        <v-spacer></v-spacer>
+
           <v-btn flat @click="submit" class="success mx-0 mt-3">Add Member</v-btn>
         </v-form>
       </v-card-text>
@@ -45,7 +55,9 @@ export default {
       //   v => !!v || "This field is required",
       //   v => v.length >= 1 || "Minimum length is 1 character"
       // ],
-      dialog: false
+      dialog: false,
+      colors: ["Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Pink", "Black"],
+      memberColor: ""
     };
   },
   methods: {
@@ -56,7 +68,9 @@ export default {
         const member = {
           name: this.name,
           id: this.id,
-          job_scope: this.job_scope
+          job_scope: this.job_scope,
+          memberColor: this.memberColor.toLowerCase(),
+          isSelected: false
         };
 
         db.collection("members")
@@ -65,10 +79,13 @@ export default {
             this.dialog = false;
             this.$emit("projectAdded");
           });
+
+        
       }
       this.id = "";
       this.name = "";
       this.job_scope = "";
+      this.memberColor = "";
     }
   }
 };

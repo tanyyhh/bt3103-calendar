@@ -4,7 +4,6 @@
       <MemberList></MemberList>
     </div>
 
-
     <div id="middle-child-flex">
       <Fullcalendar
         :plugins="calendarPlugins"
@@ -14,7 +13,7 @@
                     right:'prev today next'
                 }"
         :selectable="true"
-        :events="EVENTS"
+        :events="events"
         @select="handleSelect"
         :contentHeight="calHeight"
         minTime="08:00:00"
@@ -22,8 +21,7 @@
         slotDuration="01:00:00"
         slotEventOverlap="false"
         @eventClick="handleClick"
-
-        />
+      />
     </div>
 
     <div id="right-child-flex">
@@ -48,7 +46,7 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
-import MemberList from "./MemberList.vue"
+import MemberList from "./MemberList.vue";
 
 export default {
   data: () => ({
@@ -88,63 +86,40 @@ export default {
     calHeight: 0
   }),
   created() {
-      this.setHeight()
+    this.setHeight();
   },
   components: { Fullcalendar, ToDoList, MemberList },
   computed: {
-    ...mapGetters(["EVENTS"])
+    ...mapGetters(["events"])
   },
   methods: {
     handleClick(arg) {
       // console.log(arg.event.id)
-    if (confirm("Delete event?")) {
-    const isEvent = (e) => e.id == arg.event.id;
-    const index = this.$store.state.events.findIndex(isEvent);
-
-    this.$store.state.events.splice(index, 1);
-    }
-
-    },
-      setHeight() {
-          this.calHeight = window.innerHeight * 0.8;
-      },
-    addMember: function() {
-      // var input = document.getElementById('itemForm');
-      if (this.newUser !== "") {
-        this.items.push({
-          text: this.newUser + " (" + this.colourNames[this.colour % 8] + ")",
-          color: this.colours[this.colour % 8],
-          colorNames: this.colourNames[this.colour % 8],
-          toggle: false
-        });
-        this.colour++;
-        this.count++;
-        this.newUser = "";
+      if (confirm("Delete event?")) {
+        const isEvent = e => e.id == arg.event.id;
+        const index = this.$store.state.events.findIndex(isEvent);
+        this.$store.state.events.splice(index, 1);
       }
     },
 
-    deleteMember: function(index) {
-      this.items.splice(index, 1);
+    setHeight() {
+      this.calHeight = window.innerHeight * 0.8;
     },
 
-    setColor: function(member) {
-      this.mainColor = member.color;
-      //console.log(this.$store.state.events)
-    },
     handleSelect(arg) {
-      if (this.selectedUser.color) {
+      if (Object.keys(this.$store.getters.member).length != 0) {
         this.$store.commit("ADD_EVENT", {
           id: new Date().getTime(),
           title: arg.title,
           start: arg.start,
           end: arg.end,
           allDay: arg.allDay,
-          color: this.mainColor
+          color: this.$store.getters.member.memberColor
         });
       }
     },
 
-    handleSelect2(arg) {
+    addEvent(arg) {
       this.$store.commit("ADD_EVENT", {
         id: new Date().getTime(),
         title: arg.title,
@@ -197,7 +172,7 @@ export default {
               "T" +
               document.getElementById("swal-input5").value
           );
-          vm.handleSelect2({
+          vm.addEvent({
             start: start,
             end: end,
             allDay: false,
@@ -218,11 +193,11 @@ export default {
   margin-top: 50px;
   margin-bottom: 10px;
   margin-left: 10px;
-  background-color:aqua;
+  background-color: aqua;
   border: 2px solid darkslategray;
   border-radius: 5px;
   width: 100px;
-  font-size:15px
+  font-size: 15px;
 }
 header {
   background: white;
@@ -251,35 +226,34 @@ header {
   overflow-y: auto;
   max-height: calc(100vh-150px);
 }
-#itemForm{
+#itemForm {
   border: 2px solid darkslategray;
 }
 #button1 {
-  background-color:aqua;
-  border: 2px solid darkslategray;
-  border-radius: 5px;
-  padding: 0px 10px;  
-}
-
-#button2 {
-  background-color:aqua;
+  background-color: aqua;
   border: 2px solid darkslategray;
   border-radius: 5px;
   padding: 0px 10px;
-  font-size:15px;
-
 }
 
-#lst{
+#button2 {
+  background-color: aqua;
+  border: 2px solid darkslategray;
+  border-radius: 5px;
+  padding: 0px 10px;
+  font-size: 15px;
+}
+
+#lst {
   text-align: left;
   font-size: 17px;
 }
 
-#who{
-  background-color: lightgrey
+#who {
+  background-color: lightgrey;
 }
-#checkbox1{
-  transform: scale(1)
+#checkbox1 {
+  transform: scale(1);
 }
 ul {
   background: #f4faf6;
