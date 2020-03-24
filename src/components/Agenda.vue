@@ -102,26 +102,11 @@ export default {
               start: doc.data().start,
               end: doc.data().end,
               allDay: doc.data().allDay,
-              display: "block",
-              color: "khaki",
               unique: doc.id
             };
-            console.log(data.id)
-            console.log(this.$store.state.id.length)
 
-            var check = false
-            //if (data.id < this.$store.state.id.length) {
-            //  check = true
-            //}
-            check = this.$store.state.id.includes(data.id)
-            //vm.$store.state.events.forEach(key => {
-            //  console.log(key.id)
-            //  if (key.id == data.id) {
-            //    check = true
-            //  }
-            //})
-            console.log(check)
-            if (check == false) {
+          var check = this.$store.state.id.includes(data.id)
+          if (check == false) {
               vm.handleSelect2({
                 id: data.id,
                 start: new Date(data.start),
@@ -130,8 +115,8 @@ export default {
                 allDay: data.allDay,
                 unique: data.unique
             });
-            }
-        });
+          }
+          });
         })
   },
 
@@ -142,20 +127,18 @@ export default {
 
   methods: {
     handleClick(arg) {
-    if (confirm("Delete event?")) {
-    const isEvent = (e) => e.id == arg.event.id;
-    const index = this.$store.state.events.findIndex(isEvent);
-    const index_id = this.$store.state.id.indexOf(isEvent);
+      if (confirm("Delete event?")) {
+        const isEvent = (e) => e.id == arg.event.id;
+        const index = this.$store.state.events.findIndex(isEvent);
+        const index_id = this.$store.state.id.indexOf(isEvent);
 
-    var unique1 = this.$store.state.events[index]['unique']
-    console.log(unique1)
-     
-    this.$store.state.events.splice(index, 1);
-    this.$store.state.id.splice(index_id, 1);
-    console.log(this.$store.state.id.length)
+        var doc_id = this.$store.state.events[index]['unique']
+        console.log(doc_id)
+        this.$store.state.events.splice(index, 1);
+        this.$store.state.id.splice(index_id, 1);
 
-    db.collection("events")
-          .doc(unique1)
+        db.collection("events")
+          .doc(doc_id)
           .delete()
           .then(function() {
             console.log("Project successfully deleted!");
@@ -163,14 +146,14 @@ export default {
           .catch(function(error) {
             console.error("Error removing project: ", error);
           });
-    }
-
+      }
     },
-      setHeight() {
-          this.calHeight = window.innerHeight * 0.8;
-      },
+
+    setHeight() {
+        this.calHeight = window.innerHeight * 0.8;
+    },
+
     addMember: function() {
-      // var input = document.getElementById('itemForm');
       if (this.newUser !== "") {
         this.items.push({
           text: this.newUser + " (" + this.colourNames[this.colour % 8] + ")",
@@ -190,8 +173,8 @@ export default {
 
     setColor: function(member) {
       this.mainColor = member.color;
-      //console.log(this.$store.state.events)
     },
+
     handleSelect(arg) {
       if (this.selectedUser.color) {
         this.$store.commit("ADD_EVENT", {
@@ -206,8 +189,6 @@ export default {
     },
 
     handleSelect2(arg) {
-      var vm = this;
-      console.log("test")
       this.$store.commit("ADD_EVENT", {
         id: arg.id,
         title: arg.title,
@@ -249,37 +230,15 @@ export default {
           "End time" +
           '<input id="swal-input5" class="swal2-input" placeholder="HH:MM:SS">'
       }).then(function(result) {
-        
         if (result.value) {
-          var title = document.getElementById("swal-input1").value;
-          var start = new Date(
-            document.getElementById("swal-input2").value +
-              "T" +
-              document.getElementById("swal-input4").value
-          );
-          var end = new Date(
-            document.getElementById("swal-input3").value +
-              "T" +
-              document.getElementById("swal-input5").value
-          );
-          
-          db.collection("global").doc("4a84EZ73ZqWnESN1D2Gu")
+          db.collection("global").doc(vm.global)
             .get()
             .then(doc => {
                 vm.id = doc.data()["variable"]
           }).catch(function(error) {
             console.log("Error getting document:", error);
           }); 
-          /*
-          db.collection('global').onSnapshot(myModules => {
-            console.log("hell")
-          myModules.forEach(function(doc) {
-            vm.id = doc.data()["variable"]
-            console.log(doc.data()["variable"])
-          })
-          //this.modules = temp;
-          })
-          */
+
          var input = {
             start: document.getElementById("swal-input2").value +
               "T" +
@@ -288,38 +247,17 @@ export default {
               "T" +
               document.getElementById("swal-input5").value,
             allDay: false,
-            title: title
+            title: document.getElementById("swal-input1").value,
           }
-         setTimeout(function () {
-          input["id"] = vm.id
-          vm.submit(input);
+
+          setTimeout(function () {
+            input["id"] = vm.id
+            vm.submit(input);
 
           db.collection("global").doc(vm.global).set({
             variable: vm.id+1},
             {merge:true});
           
-          //db.collection("global")
-          //.doc(vm.global)
-          //.delete()
-          //.then(function() {
-          //  console.log("Project successfully deleted!");
-          //})
-          //.catch(function(error) {
-          //  console.error("Error removing project: ", error);
-          //});
-          //}
-
-          //vm.id = vm.id + 1
-          //db.collection("global").doc(vm.global)
-          //.set({
-          //  variable: vm.id
-          //})
-          //.then(() => {
-          //  this.dialog = false;
-          //  this.$emit("variableAdded");
-          //});
-          //console.log(vm.id)
-
           Swal.fire("Event Added!", "Check the Calendar!", "success");
          }, 1000);
       }})
@@ -327,27 +265,26 @@ export default {
 
     submit(arg) {
       var vm = this
-        const event = {
+      const event = {
+        id: arg.id,
+        title: arg.title,
+        start: arg.start,
+        end: arg.end,
+        allDay: false
+      };
+      db.collection("events")
+        .add(event)
+        .then(() => {
+          this.dialog = false;
+          this.$emit("projectAdded");
+        });
+      vm.handleSelect2({
           id: arg.id,
-          title: arg.title,
           start: arg.start,
           end: arg.end,
-          allDay: false
-        };
-        db.collection("events")
-          .add(event)
-          .then(() => {
-            this.dialog = false;
-            this.$emit("projectAdded");
-          });
-        vm.handleSelect2({
-            id: arg.id,
-            start: arg.start,
-            end: arg.end,
-            allDay: false,
-            title: arg.title,
-            //unique: db.collection("events").dc
-          });
+          allDay: false,
+          title: arg.title
+      });
     }
   }
 };

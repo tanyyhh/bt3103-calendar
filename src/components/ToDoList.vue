@@ -7,7 +7,6 @@
             </li>
         </ol>
     </div>
-    
 </template>
 
 <script>
@@ -32,30 +31,7 @@ import db from "@/fb";
                         this.todos.push(data);
                     });
                 });
-            console.log(this.todos)
         },
-
-        methods: {
-            addTodo: function() {
-                this.todos.push({
-                    title: this.newTodo,
-                    done: false
-                });
-                this.newTodo = '';
-            },
-            removeTodo: function(todo) {
-                const todoIndex = this.todos.indexOf(todo);
-                this.todos.splice(todoIndex, 1);
-            },
-            allDone: function() {
-                this.todos.forEach(todo => {
-                todo.done = true;
-                });
-            },
-            removeAll: function() {
-                this.todos = [];
-            }
-        }
     } 
 </script>
 
