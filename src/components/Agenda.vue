@@ -1,27 +1,8 @@
 <template>
   <div id="flex-container">
     <div id="left-child-flex">
-      <header>{{title}}</header>
-      <div>
-        <input id="itemForm" v-model="newUser" @keypress.enter="addMember" placeholder="New Member" />
-        <button id='button1' @click="addMember">Add Member</button>
-      </div>
-      <ul id="lst">
-        <li v-for="(item, index) in items" :key="item.name">
-          {{item.text}}
-          <!-- <span :class="item.colorNames">{{item.text}}</span> -->
-          <input id='checkbox1' type="checkbox" checked @click="filter(item.color)" />
-          <button id='button2' @click="deleteMember(index)">Delete</button>
-        </li>
-      </ul>
-      <label for="who" style='font-size: 20px'>Who are you?</label>
-      <select id="who" v-model="selectedUser" @change="setColor(selectedUser)">
-        <option value=""  disabled selected>Please select...</option>
-        <option v-for="member in items" :key="member.color" :value="member" v-text="member.text"></option>
-      </select>
+      <MemberList></MemberList>
     </div>
-
-
     <div id="middle-child-flex">
       <Fullcalendar
         :plugins="calendarPlugins"
@@ -42,13 +23,13 @@
 
         />
     </div>
-
     <div id="right-child-flex">
       <ToDoList></ToDoList>
       <button id="addEvent" @click="promptUser">Add Event</button>
     </div>
   </div>
 </template>
+
 
 <script>
 require("@fullcalendar/core/main.min.css");
@@ -65,6 +46,7 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
+import MemberList from "./MemberList.vue"
 import db from "@/fb";
 
 export default {
@@ -75,6 +57,8 @@ export default {
       InteractionPlugin,
       ListPlugin
     ],
+    id: 0,
+    global: "4a84EZ73ZqWnESN1D2Gu",
     title: "List of Members",
     colour: 0, //color of item
     count: 0, //number of items
@@ -104,6 +88,7 @@ export default {
     newUser: "",
     calHeight: 0
   }),
+  
   created() {
       this.setHeight()
       var vm = this;
@@ -112,34 +97,72 @@ export default {
         .then(querySnapshot => {
           querySnapshot.forEach(doc => {
             const data = {
-              id: doc.id,
+              id: doc.data().id,
               title: doc.data().title,
               start: doc.data().start,
               end: doc.data().end,
-              allDay: doc.data().allDay
+              allDay: doc.data().allDay,
+              display: "block",
+              color: "khaki",
+              unique: doc.id
             };
-            console.log(data.start)
-            vm.handleSelect2({
-              start: new Date(data.start),
-              end: new Date(data.end),
-              title: data.title,
-              allDay: data.allDay
-          });
-          });
+            console.log(data.id)
+            console.log(this.$store.state.id.length)
+
+            var check = false
+            //if (data.id < this.$store.state.id.length) {
+            //  check = true
+            //}
+            check = this.$store.state.id.includes(data.id)
+            //vm.$store.state.events.forEach(key => {
+            //  console.log(key.id)
+            //  if (key.id == data.id) {
+            //    check = true
+            //  }
+            //})
+            console.log(check)
+            if (check == false) {
+              vm.handleSelect2({
+                id: data.id,
+                start: new Date(data.start),
+                end: new Date(data.end),
+                title: data.title,
+                allDay: data.allDay,
+                unique: data.unique
+            });
+            }
         });
+        })
   },
-  components: { Fullcalendar, ToDoList },
+
+  components: { Fullcalendar, ToDoList, MemberList },
   computed: {
     ...mapGetters(["EVENTS"])
   },
+
   methods: {
     handleClick(arg) {
-      // console.log(arg.event.id)
     if (confirm("Delete event?")) {
     const isEvent = (e) => e.id == arg.event.id;
     const index = this.$store.state.events.findIndex(isEvent);
+    const index_id = this.$store.state.id.indexOf(isEvent);
 
+    var unique1 = this.$store.state.events[index]['unique']
+    console.log(unique1)
+     
     this.$store.state.events.splice(index, 1);
+    this.$store.state.id.splice(index_id, 1);
+    console.log(this.$store.state.id.length)
+
+    db.collection("events")
+          .doc(unique1)
+          .delete()
+          .then(function() {
+            console.log("Project successfully deleted!");
+          })
+          .catch(function(error) {
+            console.error("Error removing project: ", error);
+          });
     }
 
     },
@@ -183,15 +206,17 @@ export default {
     },
 
     handleSelect2(arg) {
+      var vm = this;
       console.log("test")
       this.$store.commit("ADD_EVENT", {
-        id: new Date().getTime(),
+        id: arg.id,
         title: arg.title,
         start: arg.start,
         end: arg.end,
         allDay: arg.allDay,
         display: "block",
-        color: "khaki"
+        color: "khaki",
+        unique: arg.unique
       });
     },
 
@@ -238,14 +263,24 @@ export default {
               document.getElementById("swal-input5").value
           );
           
-          vm.handleSelect2({
-            start: start,
-            end: end,
-            allDay: false,
-            title: title
-          });
-
-          vm.submit({
+          db.collection("global").doc("4a84EZ73ZqWnESN1D2Gu")
+            .get()
+            .then(doc => {
+                vm.id = doc.data()["variable"]
+          }).catch(function(error) {
+            console.log("Error getting document:", error);
+          }); 
+          /*
+          db.collection('global').onSnapshot(myModules => {
+            console.log("hell")
+          myModules.forEach(function(doc) {
+            vm.id = doc.data()["variable"]
+            console.log(doc.data()["variable"])
+          })
+          //this.modules = temp;
+          })
+          */
+         var input = {
             start: document.getElementById("swal-input2").value +
               "T" +
               document.getElementById("swal-input4").value,
@@ -254,51 +289,66 @@ export default {
               document.getElementById("swal-input5").value,
             allDay: false,
             title: title
-          });
+          }
+         setTimeout(function () {
+          input["id"] = vm.id
+          vm.submit(input);
+
+          db.collection("global").doc(vm.global).set({
+            variable: vm.id+1},
+            {merge:true});
+          
+          //db.collection("global")
+          //.doc(vm.global)
+          //.delete()
+          //.then(function() {
+          //  console.log("Project successfully deleted!");
+          //})
+          //.catch(function(error) {
+          //  console.error("Error removing project: ", error);
+          //});
+          //}
+
+          //vm.id = vm.id + 1
+          //db.collection("global").doc(vm.global)
+          //.set({
+          //  variable: vm.id
+          //})
+          //.then(() => {
+          //  this.dialog = false;
+          //  this.$emit("variableAdded");
+          //});
+          //console.log(vm.id)
 
           Swal.fire("Event Added!", "Check the Calendar!", "success");
-        }
-      });
+         }, 1000);
+      }})
     },
 
     submit(arg) {
+      var vm = this
         const event = {
+          id: arg.id,
           title: arg.title,
           start: arg.start,
           end: arg.end,
           allDay: false
         };
-
         db.collection("events")
           .add(event)
           .then(() => {
             this.dialog = false;
             this.$emit("projectAdded");
           });
-    },
-
-    created() {
-      console.log("hello")
-      db.collection("events")
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(doc => {
-            const data = {
-              id: doc.id,
-              title: doc.data().title,
-              start: doc.data().start,
-              end: doc.data().end
-            };
-            console.log(data)
-            vm.handleSelect2({
-              start: start,
-              end: end,
-              allDay: false,
-              title: title
+        vm.handleSelect2({
+            id: arg.id,
+            start: arg.start,
+            end: arg.end,
+            allDay: false,
+            title: arg.title,
+            //unique: db.collection("events").dc
           });
-          });
-        });
-  }
+    }
   }
 };
 </script>

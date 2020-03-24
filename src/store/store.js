@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    events: []
+    events: [],
+    id: []
   },
   getters: {
     EVENTS: state => state.events
@@ -13,6 +14,8 @@ const store = new Vuex.Store({
   mutations: {
     ADD_EVENT: (state, event) => {
       state.events.push(event);
+      state.id.push(event.id)
+      console.log(event.id)
     }
   },
   actions: {}
