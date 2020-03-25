@@ -1,11 +1,16 @@
 <template>
   <div id="flex-container">
     <div id="left-child-flex">
-      <MemberList></MemberList>
+      <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Event</v-btn>
+
+      <v-layout column>
+        <MemberList v-show="displayMemberList"></MemberList>
+        <ToDoList v-show="!displayMemberList"></ToDoList>
+      </v-layout>
     </div>
 
     <div id="middle-child-flex">
-      <Fullcalendar
+      <FullCalendar
         :plugins="calendarPlugins"
         :header="{
                     left:'title',
@@ -21,11 +26,8 @@
         slotDuration="01:00:00"
         slotEventOverlap="false"
         @eventClick="handleClick"
+        ref="calendar"
       />
-    </div>
-    <div id="right-child-flex">
-      <ToDoList></ToDoList>
-      <button id="addEvent" @click="promptUser">Add Event</button>
     </div>
   </div>
 </template>
@@ -36,7 +38,7 @@ require("@fullcalendar/core/main.min.css");
 require("@fullcalendar/daygrid/main.min.css");
 require("@fullcalendar/timegrid/main.min.css");
 
-import Fullcalendar from "@fullcalendar/vue";
+import FullCalendar from "@fullcalendar/vue";
 import DayGridPlugin from "@fullcalendar/daygrid";
 import TimeGridPlugin from "@fullcalendar/timegrid";
 import InteractionPlugin from "@fullcalendar/interaction";
@@ -46,7 +48,7 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
-import MemberList from "./MemberList.vue"
+import MemberList from "./MemberList.vue";
 import db from "@/fb";
 
 export default {
@@ -59,85 +61,36 @@ export default {
     ],
     id: 0,
     global: "4a84EZ73ZqWnESN1D2Gu",
-    title: "List of Members",
-    colour: 0, //color of item
-    count: 0, //number of items
-    items: [],
-    colours: [
-      "#FF0000",
-      "#FFA500",
-      "#FFFF00",
-      "#008000",
-      "#0000FF",
-      "#800080",
-      "#FFC0CB",
-      "#A52A2A"
-    ],
-    colourNames: [
-      "red",
-      "orange",
-      "yellow",
-      "green",
-      "blue",
-      "purple",
-      "pink",
-      "brown"
-    ],
-    mainColor: "white",
-    selectedUser: [],
-    newUser: "",
-    calHeight: 0
+    calHeight: 0,
+    events: [],
+    cal: null
   }),
-  
-  created() {
-      this.setHeight()
-      var vm = this;
-      db.collection("events")
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(doc => {
-            const data = {
-              id: doc.data().id,
-              title: doc.data().title,
-              start: doc.data().start,
-              end: doc.data().end,
-              allDay: doc.data().allDay,
-              unique: doc.id
-            };
 
-          var check = this.$store.state.id.includes(data.id)
-          if (check == false) {
-              vm.handleSelect2({
-                id: data.id,
-                start: new Date(data.start),
-                end: new Date(data.end),
-                title: data.title,
-                allDay: data.allDay,
-                unique: data.unique
-            });
-          }
-          });
-        })
-    this.setHeight();
+  firestore: {
+    events: db.collection("events")
   },
 
-  components: { Fullcalendar, ToDoList, MemberList },
+  created() {
+    this.setHeight();
+    this.displayMemberList = this.$store.state.displayMemberList;
+  },
+
+  components: { FullCalendar, ToDoList, MemberList },
+
   computed: {
-    ...mapGetters(["events"])
+    displayMemberList() {
+      return this.$store.state.displayMemberList;
+    },
   },
 
   methods: {
-    handleClick(arg) {
+    setHeight() {
+      this.calHeight = window.innerHeight * 0.8;
+    },
+
+    handleClick(arg) { // deleting event
       if (confirm("Delete event?")) {
-        const isEvent = (e) => e.id == arg.event.id;
-        const index = this.$store.state.events.findIndex(isEvent);
-        const index_id = this.$store.state.id.indexOf(isEvent);
-
-        var doc_id = this.$store.state.events[index]['unique']
-        console.log(doc_id)
-        this.$store.state.events.splice(index, 1);
-        this.$store.state.id.splice(index_id, 1);
-
+        let doc_id = arg.event.id;
         db.collection("events")
           .doc(doc_id)
           .delete()
@@ -150,48 +103,31 @@ export default {
       }
     },
 
-
-    setHeight() {
-      this.calHeight = window.innerHeight * 0.8;
-    },
-
-    handleSelect(arg) {
+    handleSelect(arg) { // take note of start & end, must use Str
       if (Object.keys(this.$store.getters.member).length != 0) {
-        this.$store.commit("ADD_EVENT", {
+        let ev = {
           id: new Date().getTime(),
-          title: arg.title,
-          start: arg.start,
-          end: arg.end,
+          title: "",
+          start: arg.startStr,
+          end: arg.endStr,
           allDay: arg.allDay,
           color: this.$store.getters.member.memberColor
-        });
+        };
+        db.collection("events").add(ev);
       }
     },
 
-    addEvent(arg) {
-      this.$store.commit("ADD_EVENT", {
-        id: arg.id,
-        title: arg.title,
-        start: arg.start,
-        end: arg.end,
-        allDay: arg.allDay,
-        display: "block",
-        color: "khaki",
-        unique: arg.unique
-      });
-    },
-
-    filter(col) {
-      for (var e in this.$store.state.events) {
-        if (this.$store.state.events[e].color == col) {
-          this.$store.state.events[e].color += "00";
-        } else if (this.$store.state.events[e].color == col + "00") {
-          this.$store.state.events[e].color = this.$store.state.events[
-            e
-          ].color.slice(0, 7);
-        }
-      }
-    },
+    // filter(col) {
+    //   for (var e in this.$store.state.events) {
+    //     if (this.$store.state.events[e].color == col) {
+    //       this.$store.state.events[e].color += "00";
+    //     } else if (this.$store.state.events[e].color == col + "00") {
+    //       this.$store.state.events[e].color = this.$store.state.events[
+    //         e
+    //       ].color.slice(0, 7);
+    //     }
+    //   }
+    // },
 
     promptUser() {
       var vm = this;
@@ -211,60 +147,66 @@ export default {
           '<input id="swal-input5" class="swal2-input" placeholder="HH:MM:SS">'
       }).then(function(result) {
         if (result.value) {
-          db.collection("global").doc(vm.global)
+          db.collection("global")
+            .doc(vm.global)
             .get()
             .then(doc => {
-                vm.id = doc.data()["variable"]
-          }).catch(function(error) {
-            console.log("Error getting document:", error);
-          }); 
+              vm.id = doc.data()["variable"];
+            })
+            .catch(function(error) {
+              console.log("Error getting document:", error);
+            });
 
-         var input = {
-            start: document.getElementById("swal-input2").value +
+          var input = {
+            start:
+              document.getElementById("swal-input2").value +
               "T" +
               document.getElementById("swal-input4").value,
-            end: document.getElementById("swal-input3").value +
+            end:
+              document.getElementById("swal-input3").value +
               "T" +
               document.getElementById("swal-input5").value,
             allDay: false,
-            title: document.getElementById("swal-input1").value,
-          }
+            title: document.getElementById("swal-input1").value
+          };
 
-          setTimeout(function () {
-            input["id"] = vm.id
+          setTimeout(function() {
+            input["id"] = vm.id;
             vm.submit(input);
 
-          db.collection("global").doc(vm.global).set({
-            variable: vm.id+1},
-            {merge:true});
-          
-          Swal.fire("Event Added!", "Check the Calendar!", "success");
-         }, 1000);
-      }})
+            db.collection("global")
+              .doc(vm.global)
+              .set(
+                {
+                  variable: vm.id + 1
+                },
+                { merge: true }
+              );
+
+            Swal.fire("Event Added!", "Check the Calendar!", "success");
+          }, 1000);
+        }
+      });
     },
 
     submit(arg) {
-      var vm = this
+      var vm = this;
       const event = {
         id: arg.id,
         title: arg.title,
         start: arg.start,
         end: arg.end,
-        allDay: false
+        allDay: false,
+        display: "block",
+        color: "khaki",
+        // unique: arg.unique
       };
       db.collection("events")
         .add(event)
         .then(() => {
           this.dialog = false;
-          this.$emit("projectAdded");
+          this.$emit("eventAdded");
         });
-      vm.handleSelect2({
-          id: arg.id,
-          start: arg.start,
-          end: arg.end,
-          allDay: false,
-          title: arg.title
-      });
     }
   }
 };
@@ -272,15 +214,7 @@ export default {
 
 <style>
 #addEvent {
-  float: center;
-  margin-top: 50px;
-  margin-bottom: 10px;
-  margin-left: 10px;
-  background-color: aqua;
-  border: 2px solid darkslategray;
-  border-radius: 5px;
-  width: 100px;
-  font-size: 15px;
+  margin-bottom: 7%;
 }
 header {
   background: white;
@@ -296,9 +230,9 @@ header {
   flex-direction: row;
 }
 #left-child-flex {
-  flex: 0 0 10%;
-  margin-right: 3%;
-  margin-top: 3%;
+  flex: 0 0 20%;
+  margin-right: 2%;
+  margin-top: 0%;
 }
 #right-child-flex {
   flex: 0 0 10%;
@@ -338,12 +272,12 @@ header {
 #checkbox1 {
   transform: scale(1);
 }
-ul {
+/* ul {
   background: #f4faf6;
   list-style-position: outside;
   text-align: center;
   width: 110%;
-}
+} */
 
 .red {
   color: red;
