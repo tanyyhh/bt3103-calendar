@@ -26,7 +26,7 @@
         >
           <v-list-tile-content>
             <v-list-tile-title>
-              {{ member.name }}
+              {{ member.name + (selectedMember === member ? ' (selected)' : '')}}
             </v-list-tile-title>
             
           </v-list-tile-content>
@@ -68,14 +68,14 @@ export default {
   methods: {
     selectUser(mem) {
       if (this.$store.getters.member == mem) {
+        //member already selected currently
         this.$store.commit("SET_MEMBER", {});
         this.selectedMember = {};
       } else {
-        // no member selected
         this.$store.commit("SET_MEMBER", mem);
         this.selectedMember = mem;
+        console.log(this.$store.getters.member);
       }
-      console.log(this.$store.getters.member);
     }
   },
 
