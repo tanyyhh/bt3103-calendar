@@ -1,9 +1,9 @@
 <template>
   <v-dialog max-width="600px" v-model="dialog">
-    <v-btn flat slot="activator" class="success">Add New Project</v-btn>
+    <v-btn flat slot="activator" class="success">Add New Activity</v-btn>
     <v-card>
       <v-card-title>
-        <h2>Add a New Project</h2>
+        <h2>Add a New Activity</h2>
       </v-card-title>
       <v-card-text>
         <v-form class="px-3" ref="form">
@@ -35,7 +35,7 @@
           <v-spacer></v-spacer>
 
           <v-btn flat @click="submit" class="success mx-0 mt-3"
-            >Add Project</v-btn
+            >Add Activity</v-btn
           >
         </v-form>
       </v-card-text>

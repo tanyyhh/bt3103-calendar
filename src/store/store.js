@@ -4,23 +4,27 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-    state: {
-        events: [],
-        selectedMember: {}
+  state: {
+    events: [],
+    id: [],
+    selectedMember: {}
+  
+  },
+  getters: {
+      events: state => state.events,
+      member: state => state.selectedMember,
+  },
+  mutations: {
+    ADD_EVENT: (state, event) => {
+      state.events.push(event);
+      state.id.push(event.id)
+      console.log(event.id)
     },
-    getters: {
-        events: state => state.events,
-        member: state => state.selectedMember,
-    },
-    mutations: {
-        ADD_EVENT: (state, event) => {
-            state.events.push(event);
-        },
-        SET_MEMBER: (state, member) => {
-            state.selectedMember = member;
-        }
-    },
-    actions: {}
+     SET_MEMBER: (state, member) => {
+       state.selectedMember = member;
+    }
+  },
+  actions: {}
 });
 
 export default store;

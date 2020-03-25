@@ -23,13 +23,13 @@
         @eventClick="handleClick"
       />
     </div>
-
     <div id="right-child-flex">
       <ToDoList></ToDoList>
       <button id="addEvent" @click="promptUser">Add Event</button>
     </div>
   </div>
 </template>
+
 
 <script>
 require("@fullcalendar/core/main.min.css");
@@ -46,7 +46,8 @@ import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
-import MemberList from "./MemberList.vue";
+import MemberList from "./MemberList.vue"
+import db from "@/fb";
 
 export default {
   data: () => ({
@@ -56,6 +57,8 @@ export default {
       InteractionPlugin,
       ListPlugin
     ],
+    id: 0,
+    global: "4a84EZ73ZqWnESN1D2Gu",
     title: "List of Members",
     colour: 0, //color of item
     count: 0, //number of items
@@ -85,22 +88,68 @@ export default {
     newUser: "",
     calHeight: 0
   }),
+  
   created() {
+      this.setHeight()
+      var vm = this;
+      db.collection("events")
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            const data = {
+              id: doc.data().id,
+              title: doc.data().title,
+              start: doc.data().start,
+              end: doc.data().end,
+              allDay: doc.data().allDay,
+              unique: doc.id
+            };
+
+          var check = this.$store.state.id.includes(data.id)
+          if (check == false) {
+              vm.handleSelect2({
+                id: data.id,
+                start: new Date(data.start),
+                end: new Date(data.end),
+                title: data.title,
+                allDay: data.allDay,
+                unique: data.unique
+            });
+          }
+          });
+        })
     this.setHeight();
   },
+
   components: { Fullcalendar, ToDoList, MemberList },
   computed: {
     ...mapGetters(["events"])
   },
+
   methods: {
     handleClick(arg) {
-      // console.log(arg.event.id)
       if (confirm("Delete event?")) {
-        const isEvent = e => e.id == arg.event.id;
+        const isEvent = (e) => e.id == arg.event.id;
         const index = this.$store.state.events.findIndex(isEvent);
+        const index_id = this.$store.state.id.indexOf(isEvent);
+
+        var doc_id = this.$store.state.events[index]['unique']
+        console.log(doc_id)
         this.$store.state.events.splice(index, 1);
+        this.$store.state.id.splice(index_id, 1);
+
+        db.collection("events")
+          .doc(doc_id)
+          .delete()
+          .then(function() {
+            console.log("Project successfully deleted!");
+          })
+          .catch(function(error) {
+            console.error("Error removing project: ", error);
+          });
       }
     },
+
 
     setHeight() {
       this.calHeight = window.innerHeight * 0.8;
@@ -121,13 +170,14 @@ export default {
 
     addEvent(arg) {
       this.$store.commit("ADD_EVENT", {
-        id: new Date().getTime(),
+        id: arg.id,
         title: arg.title,
         start: arg.start,
         end: arg.end,
         allDay: arg.allDay,
         display: "block",
-        color: "khaki"
+        color: "khaki",
+        unique: arg.unique
       });
     },
 
@@ -161,26 +211,59 @@ export default {
           '<input id="swal-input5" class="swal2-input" placeholder="HH:MM:SS">'
       }).then(function(result) {
         if (result.value) {
-          var title = document.getElementById("swal-input1").value;
-          var start = new Date(
-            document.getElementById("swal-input2").value +
-              "T" +
-              document.getElementById("swal-input4").value
-          );
-          var end = new Date(
-            document.getElementById("swal-input3").value +
-              "T" +
-              document.getElementById("swal-input5").value
-          );
-          vm.addEvent({
-            start: start,
-            end: end,
-            allDay: false,
-            title: title
-          });
+          db.collection("global").doc(vm.global)
+            .get()
+            .then(doc => {
+                vm.id = doc.data()["variable"]
+          }).catch(function(error) {
+            console.log("Error getting document:", error);
+          }); 
 
+         var input = {
+            start: document.getElementById("swal-input2").value +
+              "T" +
+              document.getElementById("swal-input4").value,
+            end: document.getElementById("swal-input3").value +
+              "T" +
+              document.getElementById("swal-input5").value,
+            allDay: false,
+            title: document.getElementById("swal-input1").value,
+          }
+
+          setTimeout(function () {
+            input["id"] = vm.id
+            vm.submit(input);
+
+          db.collection("global").doc(vm.global).set({
+            variable: vm.id+1},
+            {merge:true});
+          
           Swal.fire("Event Added!", "Check the Calendar!", "success");
-        }
+         }, 1000);
+      }})
+    },
+
+    submit(arg) {
+      var vm = this
+      const event = {
+        id: arg.id,
+        title: arg.title,
+        start: arg.start,
+        end: arg.end,
+        allDay: false
+      };
+      db.collection("events")
+        .add(event)
+        .then(() => {
+          this.dialog = false;
+          this.$emit("projectAdded");
+        });
+      vm.handleSelect2({
+          id: arg.id,
+          start: arg.start,
+          end: arg.end,
+          allDay: false,
+          title: arg.title
       });
     }
   }
