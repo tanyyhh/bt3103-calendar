@@ -45,6 +45,9 @@ export default {
       });
     }
   },
+  firestore: {
+    projects: db.collection("projects")
+  },
   methods: {
     deleteProduct(doc) {
       if (confirm("Are you sure of deleting the project?")) {
@@ -61,20 +64,6 @@ export default {
       } else {
       }
     }
-  },
-  created() {
-    db.collection("projects").onSnapshot(res => {
-      const changes = res.docChanges();
-
-      changes.forEach(change => {
-        if (change.type === "added") {
-          this.projects.push({
-            ...change.doc.data(),
-            id: change.doc.id
-          });
-        }
-      });
-    });
   }
 };
 </script>

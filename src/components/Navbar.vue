@@ -47,7 +47,7 @@
       <v-layout column align-center>
         <v-flex class="mt-5">
           <v-avatar size="100">
-            <img class="text-lg-center" src="/avatar-1.png" />
+            <img class="text-lg-center" src="../assets/avatar.jpeg" />
           </v-avatar>
           <p class="white--text subheading mt-1">UserName</p>
         </v-flex>
