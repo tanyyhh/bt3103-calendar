@@ -103,8 +103,8 @@ export default {
             firebase.auth().currentUser.updateProfile({
               displayName: this.name
             })
-            alert(`Account created for ` + this.email);
-            // console.log(firebase.auth().currentUser)
+            
+            console.log(firebase.auth().currentUser);
             db.collection("users")
               .doc(firebase.auth().currentUser.uid)
               .set({
@@ -114,7 +114,9 @@ export default {
                 projects: []
 
               })
-            this.$router.go({ path: this.$router.path });
+            alert(`Account created for ` + this.email);
+            // this.$router.go({ path: this.$router.path });
+            this.$router.push('/');
           },
           err => {
             alert(err.message);

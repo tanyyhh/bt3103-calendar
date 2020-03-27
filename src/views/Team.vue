@@ -8,13 +8,13 @@
 
     <v-container class="my-5">
       <v-layout row wrap>
-        <v-flex xs12 sm6 md4 lg3 v-for="member in members" :key="member.id">
+        <v-flex xs12 sm6 md4 lg3 v-for="member in members" :key="member.uid">
           <v-card flat class="text-xs-center ma-3">
             <v-card-text>
-              <div class="subheading" px="30">{{ member.member_id }}</div>
+              <!-- <div class="subheading" px="30">{{ member.member_id }}</div> -->
               <div class="subheading">{{ member.name }}</div>
-              <div class="grey--text">{{ member.job_scope }}</div>
-              <div :class="member.memberColor.toLowerCase()">{{ member.memberColor }}</div>
+              <div class="grey--text">{{ member.email }}</div>
+              <!-- <div :class="member.memberColor.toLowerCase()">{{ member.memberColor }}</div> -->
               
             </v-card-text>
             <v-card-actions>
@@ -44,8 +44,11 @@ export default {
       snackbar: false
     };
   },
-  firestore: {
-    members: db.collection("members")
+  firestore() {
+    var self = this;
+    return {
+      members: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("members")
+    }
   },
   methods: {
     deleteMember(doc) {

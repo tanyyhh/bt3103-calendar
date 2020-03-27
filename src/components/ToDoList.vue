@@ -37,7 +37,7 @@ export default {
   },
   created() {},
   firestore: {
-    todos: db.collection("projects")
+    todos: db.collection("masterProjectList").doc("1585316451567").collection("todos")
   },
   methods: {
     toggleList() {

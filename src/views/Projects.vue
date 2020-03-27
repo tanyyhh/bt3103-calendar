@@ -46,7 +46,7 @@ export default {
     }
   },
   firestore: {
-    projects: db.collection("projects")
+    projects: db.collection("masterProjectList").doc("1585316451567").collection("todos")
   },
   methods: {
     deleteProduct(doc) {

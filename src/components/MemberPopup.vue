@@ -7,28 +7,22 @@
       </v-card-title>
       <v-card-text>
         <v-form class="px-3" ref="form">
-          <v-text-field v-model="id" label="Member id" prepend-icon="person"></v-text-field>
           <v-text-field
-            v-model="name"
-            label="Member Name"
-            prepend-icon="person"
-          ></v-text-field>
-          <v-text-field
-            v-model="job_scope"
-            label="Member Job Scope"
+            v-model="email"
+            label="Please enter the member's email"
             prepend-icon="person"
           ></v-text-field>
           <v-spacer></v-spacer>
 
-          <v-flex xs12 sm6>
+          <!-- <v-flex xs12 sm6>
           <v-select
             v-model="memberColor"
             :items="colors"
             label="Select a color"
             solo
-          ></v-select>
-        </v-flex>
-        <v-spacer></v-spacer>
+          ></v-select>-->
+
+          <v-spacer></v-spacer>
 
           <v-btn flat @click="submit" class="success mx-0 mt-3">Add Member</v-btn>
         </v-form>
@@ -40,52 +34,90 @@
 <script>
 import format from "date-fns/format";
 import db from "@/fb";
+import firebase from "firebase";
 
 export default {
   data() {
     return {
-      id: "",
-      name: "",
-      job_scope: "",
-      title: "",
-      content: "",
-      due: null,
-      menu: false,
-      // inputRules: [
-      //   v => !!v || "This field is required",
-      //   v => v.length >= 1 || "Minimum length is 1 character"
-      // ],
+      email: "",
       dialog: false,
-      colors: ["Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Pink", "Black"],
+      uid: "",
+      colors: [
+        "Red",
+        "Green",
+        "Blue",
+        "Yellow",
+        "Orange",
+        "Purple",
+        "Pink",
+        "Black"
+      ],
       memberColor: ""
     };
   },
   methods: {
     submit() {
+      var self = this;
       if (this.$refs.form.validate()) {
         this.loading = true;
 
-        const member = {
-          name: this.name,
-          id: this.id,
-          job_scope: this.job_scope,
-          memberColor: this.memberColor.toLowerCase(),
-          isSelected: false
-        };
+        // const member = {
+        //   name: this.name,
+        //   id: this.id,
+        //   job_scope: this.job_scope,
+        //   memberColor: this.memberColor.toLowerCase(),
+        //   isSelected: false
+        // };
 
-        db.collection("members")
-          .add(member)
-          .then(() => {
-            this.dialog = false;
-            this.$emit("projectAdded");
+        // db.collection("members")
+        //   .add(member)
+        //   .then(() => {
+        //     this.dialog = false;
+        //     this.$emit("projectAdded");
+        //   });
+        var usersRef = db.collection("users");
+        var query = usersRef.where("email", "==", this.email);
+        query
+          .get()
+          .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+              // doc.data() is never undefined for query doc snapshots
+              let uid = doc.data().uid;
+              self.uid = uid;
+              // console.log("captured", uid);
+              // console.log("this", self.uid);
+              // console.log(doc.data())
+
+              usersRef
+                .doc(uid)
+                .get()
+                .then(querySnapshot => {
+                  console.log(querySnapshot.data());
+                });
+
+                // add the project id to the added user's project array
+                db.collection("users").doc(uid).update({
+                  projects: firebase.firestore.FieldValue.arrayUnion(self.$store.state.selectedProject)
+                })
+
+                // add this updated member into project's members collection in masterProjectList
+                db.collection("masterProjectList")
+                  .doc(self.$store.state.selectedProject)
+                  .collection("members")
+                  .doc(uid)
+                  .set(doc.data());
+            });
+          })
+          .catch(function(error) {
+            console.log("Error getting documents: ", error);
           });
 
-        
+        this.dialog = false;
       }
-      this.id = "";
-      this.name = "";
-      this.job_scope = "";
-      this.memberColor = "";
+      console.log("what about here", self.uid);
+
+      this.email = "";
+      this.uid = "";
     }
   }
 };

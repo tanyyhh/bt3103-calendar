@@ -85,7 +85,8 @@ export default {
       currentUser: false,
       drawer: true,
       links: [
-        { icon: "dashboard", text: "Dashboard", route: "/" },
+        { icon: "home", text: "Select Project", route: "/" },
+        { icon: "dashboard", text: "Dashboard", route: "/dashboard" },
         { icon: "folder", text: "To-do List", route: "/projects" },
         { icon: "person", text: "Team", route: "/team" },
         { icon: "calendar_today", text: "Calendar", route: "/calendar" }

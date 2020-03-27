@@ -8,12 +8,14 @@ const store = new Vuex.Store({
         events: [],
         id: [],
         selectedMember: {},
-        displayMemberList: true
+        displayMemberList: true,
+        selectedProject: "1585330846799"
 
     },
     getters: {
         events: state => state.events,
         member: state => state.selectedMember,
+        selectedProject: state => state.selectedProject
     },
     mutations: {
         ADD_EVENT: (state, event) => {
