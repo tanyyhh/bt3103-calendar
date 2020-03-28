@@ -95,7 +95,9 @@ export default {
     handleClick(arg) { // deleting event
       if (confirm("Delete event?")) {
         let doc_id = arg.event.id;
-        db.collection("events")
+        db.collection("masterProjectList")
+          .doc(this.$store.state.selectedProject)
+          .collection("events")
           .doc(doc_id)
           .delete()
           .then(function() {
@@ -108,23 +110,6 @@ export default {
     },
 
     handleSelect(arg) { // take note of start & end, must use Str
-      // db.collection("events")
-      //   .get()
-      //   .then(querySnapshot => {
-      //       querySnapshot.forEach(doc => {
-      //         console.log(doc)
-      //         const data = {
-      //           allDay: doc.allDay,
-      //           color: doc.color,
-      //           display: doc.display,
-      //           end: doc.end,
-      //           id: doc.id,
-      //           start: doc.start,
-      //           title: doc.title
-      //         }
-      //         db.collection("events").doc("1585316451567d").collection("events").add(data);
-      //       })
-      //   })
       if (Object.keys(this.$store.getters.member).length != 0) {
         let ev = {
           id: new Date().getTime(),
@@ -224,7 +209,9 @@ export default {
         // unique: arg.unique
       };
 
-      db.collection("events")
+      db.collection("masterProjectList")
+        .doc(vm.$store.state.selectedProject)
+        .collection("events")
         .add(event)
         .then(() => {
           this.dialog = false;
