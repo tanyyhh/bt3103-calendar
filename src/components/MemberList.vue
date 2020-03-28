@@ -64,8 +64,11 @@ export default {
     }
   },
 
-  firestore: {
-    members: db.collection("members")
+  firestore() {
+    var self = this;
+    return {
+      members: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("members")
+    }
   }
 };
 </script>

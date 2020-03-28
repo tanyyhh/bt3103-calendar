@@ -22,6 +22,19 @@
                 </v-flex>
               </v-layout>
               <v-layout row>
+                <v-icon>person</v-icon>
+                <v-flex xs12>
+                  <v-text-field
+                    name="name"
+                    label="name"
+                    id="name"
+                    v-model="name"
+                    type="name"
+                    required
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout row>
                 <v-icon>lock</v-icon>
                 <v-flex xs12>
                   <v-text-field
@@ -49,7 +62,7 @@
               </v-layout>
               <v-layout row>
                 <v-flex xs12>
-                  <v-btn type="submit" v-on:click="onSignUp">Sign up</v-btn>
+                  <v-btn type="submit" @click="onSignUp">Sign up</v-btn>
                 </v-flex>
               </v-layout>
             </form>
@@ -62,13 +75,15 @@
 
 <script>
 import firebase from "firebase/app";
+import db from "@/fb";
 
 export default {
   data() {
     return {
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      name: "",
     };
   },
   computed: {
@@ -85,8 +100,23 @@ export default {
         .createUserWithEmailAndPassword(this.email, this.password)
         .then(
           user => {
+            firebase.auth().currentUser.updateProfile({
+              displayName: this.name
+            })
+            
+            console.log(firebase.auth().currentUser);
+            db.collection("users")
+              .doc(firebase.auth().currentUser.uid)
+              .set({
+                name: this.name,
+                email: firebase.auth().currentUser.email,
+                uid: firebase.auth().currentUser.uid,
+                projects: []
+
+              })
             alert(`Account created for ` + this.email);
-            this.$router.go({ path: this.$router.path });
+            // this.$router.go({ path: this.$router.path });
+            this.$router.push('/');
           },
           err => {
             alert(err.message);

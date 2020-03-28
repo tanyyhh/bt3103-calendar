@@ -66,8 +66,11 @@ export default {
     cal: null
   }),
 
-  firestore: {
-    events: db.collection("events")
+  firestore() {
+    var self = this;
+    return {
+      events: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("events")
+    }
   },
 
   created() {
@@ -91,7 +94,9 @@ export default {
     handleClick(arg) { // deleting event
       if (confirm("Delete event?")) {
         let doc_id = arg.event.id;
-        db.collection("events")
+        db.collection("masterProjectList")
+          .doc(this.$store.state.selectedProject)
+          .collection("events")
           .doc(doc_id)
           .delete()
           .then(function() {
@@ -113,7 +118,7 @@ export default {
           allDay: arg.allDay,
           color: this.$store.getters.member.memberColor
         };
-        db.collection("events").add(ev);
+        db.collection("masterProjectList").doc(this.$store.state.selectedProject).collection("events").add(ev);
       }
     },
 
@@ -201,12 +206,16 @@ export default {
         color: "khaki",
         // unique: arg.unique
       };
-      db.collection("events")
+
+      db.collection("masterProjectList")
+        .doc(vm.$store.state.selectedProject)
+        .collection("events")
         .add(event)
         .then(() => {
           this.dialog = false;
           this.$emit("eventAdded");
         });
+      
     }
   }
 };

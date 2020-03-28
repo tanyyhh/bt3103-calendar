@@ -49,8 +49,9 @@
           <v-avatar size="100">
             <img class="text-lg-center" src="../assets/avatar.jpeg" />
           </v-avatar>
-          <p class="white--text subheading mt-1">UserName</p>
         </v-flex>
+        <p class="white--text subheading mt-1">{{currentUser.displayName}}</p>
+        <p class="white--text subheading mt-1">{{currentUser.email}}</p>
         <v-flex class="mt-4 mb-3">
           <Popup @projectAdded="snackbar = true" />
         </v-flex>
@@ -82,10 +83,11 @@ export default {
   data() {
     return {
       isSignedIn: false,
-      currentUser: false,
+      currentUser: "",
       drawer: true,
       links: [
-        { icon: "dashboard", text: "Dashboard", route: "/" },
+        { icon: "home", text: "Select Project", route: "/" },
+        { icon: "dashboard", text: "Dashboard", route: "/dashboard" },
         { icon: "folder", text: "To-do List", route: "/projects" },
         { icon: "person", text: "Team", route: "/team" },
         { icon: "calendar_today", text: "Calendar", route: "/calendar" }
@@ -93,11 +95,19 @@ export default {
       snackbar: false
     };
   },
-  created() {
-    if (firebase.auth().currentUser) {
-      this.isSignedIn = true;
-      this.currentUser = firebase.auth().currentUser.email;
-    }
+  mounted() {
+    var self = this;
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        console.log(user);
+        self.isSignedIn = true;
+        self.currentUser = user;
+      } else {
+        // No user is signed in.
+        console.log("no user hello");
+      }
+    });
   },
   methods: {
     signOut() {
@@ -105,6 +115,7 @@ export default {
         .auth()
         .signOut()
         .then(() => {
+          window.location.reload();
           this.$router.go({ path: this.$router.path });
         });
     }
