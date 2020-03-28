@@ -38,7 +38,8 @@ export default {
     return {
       masterProjectList: [],
       proj: [],
-      users: []
+      users: [],
+      currentUsername: ""
     };
   },
   firestore: {
@@ -56,12 +57,14 @@ export default {
         if (user) {
           // User is signed in.
           console.log(user.uid);
+          
 
           var docRef = db.collection("users").doc(user.uid);
           docRef.get().then(doc => {
             let proj = doc.data().projects;
             // console.log(proj);
             self.proj = proj;
+            self.currentUsername = doc.data().name;
           });
         } else {
           // No user is signed in.
@@ -144,6 +147,8 @@ export default {
                   projects: firebase.firestore.FieldValue.arrayUnion(key)
                 });
 
+                // initialising dummy documents in events, todos collections
+
                 db.collection("masterProjectList")
                   .doc(key)
                   .set(input);
@@ -151,10 +156,19 @@ export default {
                   .doc(key)
                   .collection("events")
                   .add({});
+
+                const todo = {
+                  title: "Example todo",
+                  content: "This is an example todo, feel free to delete this!",
+                  due: "1st Jan 2020",
+                  person: "User",
+                  status: "ongoing"
+                };
                 db.collection("masterProjectList")
                   .doc(key)
                   .collection("todos")
-                  .add({});
+                  .doc(user.uid)
+                  .set(todo);
                 // db.collection("masterProjectList")
                 //   .doc(key)
                 //   .collection("members")

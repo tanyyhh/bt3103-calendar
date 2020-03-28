@@ -7,18 +7,8 @@
       </v-card-title>
       <v-card-text>
         <v-form class="px-3" ref="form">
-          <v-text-field
-            v-model="title"
-            label="Title"
-            prepend-icon="folder"
-            :rules="inputRules"
-          ></v-text-field>
-          <v-textarea
-            v-model="content"
-            label="Information"
-            prepend-icon="edit"
-            :rules="inputRules"
-          ></v-textarea>
+          <v-text-field v-model="title" label="Title" prepend-icon="folder" :rules="inputRules"></v-text-field>
+          <v-textarea v-model="content" label="Information" prepend-icon="edit" :rules="inputRules"></v-textarea>
 
           <v-menu v-model="menu" :close-on-content-click="false">
             <v-text-field
@@ -34,9 +24,7 @@
 
           <v-spacer></v-spacer>
 
-          <v-btn flat @click="submit" class="success mx-0 mt-3"
-            >Add Activity</v-btn
-          >
+          <v-btn flat @click="submit" class="success mx-0 mt-3">Add Activity</v-btn>
         </v-form>
       </v-card-text>
     </v-card>
@@ -46,6 +34,7 @@
 <script>
 import format from "date-fns/format";
 import db from "@/fb";
+import firebase from "firebase";
 
 export default {
   data() {
@@ -58,24 +47,40 @@ export default {
         v => !!v || "This field is required",
         v => v.length >= 3 || "Minimum length is 3 characters"
       ],
-      dialog: false
+      dialog: false,
+      person: ""
     };
+  },
+  mounted() {
+    var self = this;
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        self.person = user.displayName;
+      } else {
+        // No user is signed in.
+        console.log("no user hello");
+      }
+    });
   },
   methods: {
     submit() {
+      var self = this;
       if (this.$refs.form.validate()) {
         this.loading = true;
 
-        const project = {
+        const todo = {
           title: this.title,
           content: this.content,
           due: format(this.due, "Do MMM YYYY"),
-          person: "UserName",
+          person: this.person,
           status: "ongoing"
         };
 
-        db.collection("projects")
-          .add(project)
+        db.collection("masterProjectList")
+          .doc(this.$store.state.selectedProject)
+          .collection("todos")
+          .add(todo)
           .then(() => {
             this.dialog = false;
             this.$emit("projectAdded");

@@ -33,7 +33,7 @@
       </v-layout>
 
       <v-card flat v-for="todo in todos" :key="todo.title">
-        <v-layout row wrap :class="`pa-3 project ${project.status}`">
+        <v-layout row wrap :class="`pa-3 project ${todo.status}`">
           <v-flex xs12 md6>
             <div class="caption grey--text">Project title</div>
             <div>{{ todo.title }}</div>

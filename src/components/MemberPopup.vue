@@ -44,7 +44,6 @@ export default {
       dialog: false,
       uid: "",
       colors: [
-        "Red",
         "Green",
         "Blue",
         "Yellow",
