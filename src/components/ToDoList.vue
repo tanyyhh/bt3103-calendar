@@ -36,8 +36,11 @@ export default {
     };
   },
   created() {},
-  firestore: {
-    todos: db.collection("masterProjectList").doc("1585316451567").collection("todos")
+  firestore() {
+    var self = this;
+    return {
+      todos: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("todos")
+    }
   },
   methods: {
     toggleList() {

@@ -6,7 +6,11 @@
 
     <v-container class="my-5">
       <v-expansion-panel>
-        <v-expansion-panel-content v-for="project in masterProjectList" :key="project.name" v-show="check(project)">
+        <v-expansion-panel-content
+          v-for="project in masterProjectList"
+          :key="project.name"
+          v-show="check(project)"
+        >
           <div slot="header" class="py-1">{{ project.name }}</div>
           <v-card>
             <v-card-text class="px-4 grey--text">
@@ -69,7 +73,7 @@ export default {
   computed: {},
   methods: {
     check(project) {
-        return this.proj.includes(project.id);
+      return this.proj.includes(project.id);
     },
     test() {
       var self = this;
@@ -106,7 +110,7 @@ export default {
       console.log("clicked to dashboard");
       console.log(project.id);
       this.$store.state.selectedProject = project.id;
-      //   this.$router.push("/dashboard");
+      this.$router.push("/dashboard");
     },
     promptUser() {
       let key = new Date().getTime().toString();
@@ -151,10 +155,10 @@ export default {
                   .doc(key)
                   .collection("todos")
                   .add({});
-                db.collection("masterProjectList")
-                  .doc(key)
-                  .collection("members")
-                  .add({});
+                // db.collection("masterProjectList")
+                //   .doc(key)
+                //   .collection("members")
+                //   .add({});
 
                 docRef.get().then(doc => {
                   db.collection("masterProjectList")
@@ -162,6 +166,14 @@ export default {
                     .collection("members")
                     .doc(user.uid)
                     .set(doc.data());
+
+                  db.collection("masterProjectList")
+                    .doc(key)
+                    .collection("members")
+                    .doc(user.uid)
+                    .update({
+                      memberColor: "red" // default color for user who created project
+                    });
                 });
               } else {
                 // No user is signed in.

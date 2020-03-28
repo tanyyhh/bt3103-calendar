@@ -32,26 +32,26 @@
         </v-tooltip>
       </v-layout>
 
-      <v-card flat v-for="project in projects" :key="project.title">
+      <v-card flat v-for="todo in todos" :key="todo.title">
         <v-layout row wrap :class="`pa-3 project ${project.status}`">
           <v-flex xs12 md6>
             <div class="caption grey--text">Project title</div>
-            <div>{{ project.title }}</div>
+            <div>{{ todo.title }}</div>
           </v-flex>
           <v-flex xs6 sm4 md2>
             <div class="caption grey--text">Person</div>
-            <div>{{ project.person }}</div>
+            <div>{{ todo.person }}</div>
           </v-flex>
           <v-flex xs6 sm4 md2>
             <div class="caption grey--text">Due by</div>
-            <div>{{ project.due }}</div>
+            <div>{{ todo.due }}</div>
           </v-flex>
           <v-flex xs2 sm4 md2>
             <div class="right">
               <v-chip
                 small
-                :class="`${project.status} white--text my-2 caption`"
-                >{{ project.status }}</v-chip
+                :class="`${todo.status} white--text my-2 caption`"
+                >{{ todo.status }}</v-chip
               >
             </div>
           </v-flex>
@@ -68,11 +68,14 @@ import db from "@/fb";
 export default {
   data() {
     return {
-      projects: []
+      todos: []
     };
   },
-  firestore: {
-    projects: db.collection("masterProjectList").doc("1585316451567").collection("todos")
+  firestore() {
+    var self = this;
+    return {
+      todos: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("todos")
+    }
   },
   methods: {
     sortBy(prop) {

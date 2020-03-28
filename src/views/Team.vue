@@ -14,11 +14,10 @@
               <!-- <div class="subheading" px="30">{{ member.member_id }}</div> -->
               <div class="subheading">{{ member.name }}</div>
               <div class="grey--text">{{ member.email }}</div>
-              <!-- <div :class="member.memberColor.toLowerCase()">{{ member.memberColor }}</div> -->
-              
+              <div :class="member.memberColor">{{ member.memberColor }}</div>
             </v-card-text>
             <v-card-actions>
-              <v-btn flat color="grey" @click="deleteMember(member.id)">
+              <v-btn flat color="grey" @click="deleteMember(member.uid)">
                 <v-icon small left>delete</v-icon>
                 <span class>Delete</span>
               </v-btn>
@@ -33,6 +32,7 @@
 <script>
 import db from "@/fb";
 import popup from "../components/MemberPopup.vue";
+import firebase from "firebase";
 
 export default {
   components: {
@@ -47,15 +47,20 @@ export default {
   firestore() {
     var self = this;
     return {
-      members: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("members")
-    }
+      members: db
+        .collection("masterProjectList")
+        .doc(self.$store.state.selectedProject)
+        .collection("members")
+    };
   },
   methods: {
-    deleteMember(doc) {
+    deleteMember(uid) {
       if (confirm("Delete this member?")) {
-        console.log(doc);
-        db.collection("members")
-          .doc(doc)
+        // remove this member from members collection of this project
+        db.collection("masterProjectList")
+          .doc(this.$store.state.selectedProject)
+          .collection("members")
+          .doc(uid)
           .delete()
           .then(function() {
             console.log("Member successfully deleted!");
@@ -63,6 +68,13 @@ export default {
           .catch(function(error) {
             console.error("Error removing member: ", error);
           });
+
+        // remove this project id from projects [] of this user
+        db.collection("users")
+          .doc(uid)
+          .update({
+            "projects": firebase.firestore.FieldValue.arrayRemove(this.$store.state.selectedProject)
+          })
       } else {
       }
     }

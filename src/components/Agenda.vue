@@ -67,7 +67,6 @@ export default {
   }),
 
   firestore() {
-    // events: db.collection("events")
     var self = this;
     return {
       events: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("events")
@@ -117,8 +116,7 @@ export default {
           start: arg.startStr,
           end: arg.endStr,
           allDay: arg.allDay,
-          // color: this.$store.getters.member.memberColor
-          color: "red"
+          color: this.$store.getters.member.memberColor
         };
         db.collection("masterProjectList").doc(this.$store.state.selectedProject).collection("events").add(ev);
       }

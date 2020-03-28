@@ -14,13 +14,14 @@
           ></v-text-field>
           <v-spacer></v-spacer>
 
-          <!-- <v-flex xs12 sm6>
+          <v-flex xs12 sm6>
           <v-select
             v-model="memberColor"
             :items="colors"
             label="Select a color"
             solo
-          ></v-select>-->
+          ></v-select>
+          </v-flex>
 
           <v-spacer></v-spacer>
 
@@ -106,6 +107,14 @@ export default {
                   .collection("members")
                   .doc(uid)
                   .set(doc.data());
+
+                  db.collection("masterProjectList")
+                  .doc(self.$store.state.selectedProject)
+                  .collection("members")
+                  .doc(uid)
+                  .update({
+                    memberColor: self.memberColor.toLowerCase()
+                  });
             });
           })
           .catch(function(error) {
