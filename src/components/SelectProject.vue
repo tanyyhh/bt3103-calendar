@@ -1,17 +1,21 @@
 <template>
   <div>
-    <h1>HELLO</h1>
-    <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Project</v-btn>
-    <h1 class="subheading grey--text">Projects</h1>
+    <!-- <v-snackbar v-model="snackbar" :timeout="4000" top color="success">
+      <span>Awesome! You added a new project</span>
+      <v-btn flat color="white" @click="snackbar=false">Close</v-btn>
+    </v-snackbar> -->
+    <!-- <v-container class="my-5"> -->
+      <!-- <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Project</v-btn> -->
+      <h1 class="grey--text">Projects</h1>
+      <ProjectPopup @projectAdded="snackbar=true" />
 
-    <v-container class="my-5">
       <v-expansion-panel>
         <v-expansion-panel-content
           v-for="project in masterProjectList"
           :key="project.name"
           v-show="check(project)"
         >
-          <div slot="header" class="py-1">{{ project.name }}</div>
+          <div slot="header" class="py-1">{{ project.code + " " + project.name }}</div>
           <v-card>
             <v-card-text class="px-4 grey--text">
               <div class="font-weight-bold">Due by {{ project.due }}</div>
@@ -24,7 +28,7 @@
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
-    </v-container>
+    <!-- </v-container> -->
   </div>
 </template>
 
@@ -32,14 +36,19 @@
 import Swal from "sweetalert2";
 import firebase from "firebase";
 import db from "@/fb";
+import ProjectPopup from "./ProjectPopup.vue";
 
 export default {
+  components: {
+    ProjectPopup
+  },
   data() {
     return {
       masterProjectList: [],
       proj: [],
       users: [],
-      currentUsername: ""
+      currentUsername: "",
+      snackbar: false
     };
   },
   firestore: {
@@ -57,7 +66,6 @@ export default {
         if (user) {
           // User is signed in.
           console.log(user.uid);
-          
 
           var docRef = db.collection("users").doc(user.uid);
           docRef.get().then(doc => {
@@ -121,15 +129,20 @@ export default {
         title: "Add Project!",
         type: "question",
         html:
+          "Module Code" +
+          '<input id="swal-input0" class="swal2-input" placeholder="Give a Module Code!">' +
           "Project Name" +
           '<input id="swal-input1" class="swal2-input" placeholder="Give a Name!">' +
           "Description" +
           '<input id="swal-input2" class="swal2-input" placeholder="Add a Description!">' +
           "Due Date" +
-          '<input id="swal-input3" class="swal2-input" placeholder="YYYY-MM-DD">'
+          '<input id="swal-input3" class="swal2-input" placeholder="YYYY-MM-DD">' +
+          "Module Code" +
+          '<input type="date" id="swal-input0" class="swal2-input" placeholder="Give a Module Code!">'
       }).then(function(result) {
         if (result.value) {
           var input = {
+            code: document.getElementById("swal-input0").value,
             name: document.getElementById("swal-input1").value,
             desc: document.getElementById("swal-input2").value,
             due: document.getElementById("swal-input3").value,
@@ -169,10 +182,6 @@ export default {
                   .collection("todos")
                   .doc(user.uid)
                   .set(todo);
-                // db.collection("masterProjectList")
-                //   .doc(key)
-                //   .collection("members")
-                //   .add({});
 
                 docRef.get().then(doc => {
                   db.collection("masterProjectList")

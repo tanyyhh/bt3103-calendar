@@ -8,8 +8,8 @@
     <v-toolbar flat app>
       <v-toolbar-side-icon v-if="isSignedIn" @click="drawer = !drawer" class="grey--text"></v-toolbar-side-icon>
       <v-toolbar-title class="text-uppercase grey--text">
-        <span class="font-weight-light">BT3103</span>
-        <span>Project</span>
+        <span class="font-weight-light">{{projectCode}}</span>
+        <span>{{projectName}}</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
 
@@ -77,6 +77,7 @@
 <script>
 import Popup from "./Popup";
 import firebase from "firebase/app";
+import db from "@/fb";
 
 export default {
   components: { Popup },
@@ -84,7 +85,7 @@ export default {
     return {
       isSignedIn: false,
       currentUser: "",
-      drawer: true,
+      drawer: false,
       links: [
         { icon: "home", text: "Select Project", route: "/" },
         { icon: "dashboard", text: "Dashboard", route: "/dashboard" },
@@ -92,7 +93,9 @@ export default {
         { icon: "person", text: "Team", route: "/team" },
         { icon: "calendar_today", text: "Calendar", route: "/calendar" }
       ],
-      snackbar: false
+      snackbar: false,
+      projectName: "",
+      projectCode: ""
     };
   },
   mounted() {
@@ -108,6 +111,14 @@ export default {
         console.log("no user hello");
       }
     });
+    self.projectName = db
+      .collection("masterProjectList")
+      .doc(self.$store.state.selectedProject)
+      .get()
+      .then(doc => {
+        self.projectName = doc.data().name;
+        self.projectCode = doc.data().code;
+      });
   },
   methods: {
     signOut() {
