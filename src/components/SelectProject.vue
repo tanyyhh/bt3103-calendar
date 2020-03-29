@@ -121,6 +121,8 @@ export default {
       console.log("clicked to dashboard");
       console.log(project.id);
       this.$store.state.selectedProject = project.id;
+      this.$store.state.projectName = project.name;
+      this.$store.state.projectCode = project.code;
       this.$router.push("/dashboard");
     },
     promptUser() {

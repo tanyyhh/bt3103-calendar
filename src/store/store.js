@@ -9,7 +9,9 @@ const store = new Vuex.Store({
         id: [],
         selectedMember: {},
         displayMemberList: true,
-        selectedProject: "1585330846799"
+        selectedProject: "1585330846799",
+        projectName: "Example Project",
+        projectCode: "BT3103"
 
     },
     getters: {
