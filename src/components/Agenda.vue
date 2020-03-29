@@ -1,7 +1,8 @@
 <template>
   <div id="flex-container">
     <div id="left-child-flex">
-      <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Event</v-btn>
+      <!-- <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Event</v-btn> -->
+      <EventPopup/>
 
       <v-layout column>
         <MemberList v-show="displayMemberList"></MemberList>
@@ -49,6 +50,7 @@ import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
 import MemberList from "./MemberList.vue";
+import EventPopup from "./EventPopup.vue"
 import db from "@/fb";
 
 export default {
@@ -78,7 +80,7 @@ export default {
     this.displayMemberList = this.$store.state.displayMemberList;
   },
 
-  components: { FullCalendar, ToDoList, MemberList },
+  components: { FullCalendar, ToDoList, MemberList, EventPopup},
 
   computed: {
     displayMemberList() {

@@ -19,7 +19,7 @@
               label="Due date"
               prepend-icon="date_range"
             ></v-text-field>
-            <v-date-picker v-model="due" @change="menu = false"></v-date-picker>
+            <v-date-picker v-model="due" @change="menu=false"></v-date-picker>
           </v-menu>
 
           <v-spacer></v-spacer>
