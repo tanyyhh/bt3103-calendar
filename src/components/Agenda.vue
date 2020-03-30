@@ -1,8 +1,11 @@
 <template>
   <div id="flex-container">
+    <v-snackbar v-model="snackbar" :timeout="4000" top color="success">
+      <span>Awesome! You added a new event</span>
+      <v-btn flat color="white" @click="snackbar=false">Close</v-btn>
+    </v-snackbar>
     <div id="left-child-flex">
-      <!-- <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Event</v-btn> -->
-      <EventPopup/>
+      <EventPopup @eventAdded="snackbar=true"/>
 
       <v-layout column>
         <MemberList v-show="displayMemberList"></MemberList>
@@ -65,7 +68,8 @@ export default {
     global: "4a84EZ73ZqWnESN1D2Gu",
     calHeight: 0,
     events: [],
-    cal: null
+    cal: null,
+    snackbar: false
   }),
 
   firestore() {

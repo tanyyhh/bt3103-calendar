@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Dashboard from "./views/Dashboard.vue";
-import Projects from "./views/Projects.vue";
+import Todos from "./views/Todos.vue";
 import Team from "./views/Team.vue";
 import Calendar from "./views/Calendar.vue";
 import SignUp from "./components/SignUp.vue";
@@ -39,9 +39,9 @@ let router = new Router({
             }
         },
         {
-            path: "/projects",
-            name: "projects",
-            component: Projects,
+            path: "/todos",
+            name: "todos",
+            component: Todos,
             meta: {
                 requiresAuth: true
             }

@@ -104,7 +104,7 @@ export default {
               .set(input)
               .then(doc => {
                 self.dialog = false;
-                this.$emit("projectAdded");
+                self.$emit("projectAdded");
               });
             db.collection("masterProjectList")
               .doc(key)

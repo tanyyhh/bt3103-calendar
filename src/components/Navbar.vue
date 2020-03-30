@@ -2,7 +2,7 @@
   <nav>
     <v-snackbar v-model="snackbar" :timeout="4000" top color="success">
       <span>Awesome! You added a new actvity</span>
-      <v-btn flat color="white" @click="snackbar = false">Close</v-btn>
+      <v-btn flat color="white" @click="snackbar=false">Close</v-btn>
     </v-snackbar>
 
     <v-toolbar flat app>
@@ -53,7 +53,7 @@
         <p class="white--text subheading mt-1">{{currentUser.displayName}}</p>
         <p class="white--text subheading mt-1">{{currentUser.email}}</p>
         <v-flex class="mt-4 mb-3">
-          <Popup @projectAdded="snackbar = true" />
+          <!-- <Popup @projectAdded="snackbar = true" /> -->
         </v-flex>
       </v-layout>
       <v-list>
@@ -89,7 +89,7 @@ export default {
       links: [
         { icon: "home", text: "Select Project", route: "/" },
         { icon: "dashboard", text: "Dashboard", route: "/dashboard" },
-        { icon: "folder", text: "To-do List", route: "/projects" },
+        { icon: "folder", text: "To-do List", route: "/todos" },
         { icon: "person", text: "Team", route: "/team" },
         { icon: "calendar_today", text: "Calendar", route: "/calendar" }
       ],

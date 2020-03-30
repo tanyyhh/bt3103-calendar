@@ -1,14 +1,12 @@
 <template>
   <div>
-    <!-- <v-snackbar v-model="snackbar" :timeout="4000" top color="success">
+    <v-snackbar v-model="snackbar" :timeout="4000" top color="success">
       <span>Awesome! You added a new project</span>
       <v-btn flat color="white" @click="snackbar=false">Close</v-btn>
-    </v-snackbar> -->
-    <!-- <v-container class="my-5"> -->
-      <!-- <v-btn block color="secondary" @click="promptUser" dark id="addEvent">Add Project</v-btn> -->
+    </v-snackbar>
+    <v-container class="my-5">
       <h1 class="grey--text">Projects</h1>
       <ProjectPopup @projectAdded="snackbar=true" />
-
       <v-expansion-panel>
         <v-expansion-panel-content
           v-for="project in masterProjectList"
@@ -17,9 +15,10 @@
         >
           <div slot="header" class="py-1">{{ project.code + " " + project.name }}</div>
           <v-card>
-            <v-card-text class="px-4 grey--text">
+            <v-card-text class="px-4 black--text">
+              <div>{{ project.desc }}</div>
               <div class="font-weight-bold">Due by {{ project.due }}</div>
-              <div class="font-weight-bold">Project id: {{ project.id }}</div>
+              <!-- <div class="font-weight-bold">Project id: {{ project.id }}</div> -->
               <v-btn flap color="grey-lighten-4" @click="handleClick(project)">
                 <v-icon left>refresh</v-icon>
                 <span>Go to Dashboard</span>
@@ -28,7 +27,7 @@
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
-    <!-- </v-container> -->
+    </v-container>
   </div>
 </template>
 
