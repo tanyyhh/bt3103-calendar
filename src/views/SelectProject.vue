@@ -35,7 +35,7 @@
 import Swal from "sweetalert2";
 import firebase from "firebase";
 import db from "@/fb";
-import ProjectPopup from "./ProjectPopup.vue";
+import ProjectPopup from "../components/ProjectPopup.vue";
 
 export default {
   components: {

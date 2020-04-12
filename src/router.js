@@ -7,7 +7,7 @@ import Calendar from "./views/Calendar.vue";
 import SignUp from "./components/SignUp.vue";
 import SignIn from "./components/SignIn.vue";
 import firebase from "firebase";
-import SelectProject from "./components/SelectProject.vue"
+import SelectProject from "./views/SelectProject.vue"
 
 Vue.use(Router);
 
