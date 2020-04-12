@@ -85,12 +85,15 @@ export default {
           name: self.name,
           desc: self.desc,
           due: self.due,
-          id: key
-        };
+          id: key        };
+
         firebase.auth().onAuthStateChanged(function(user) {
           if (user) {
             // User is signed in.
             console.log(user.uid);
+
+            input.creator = user.uid;
+            console.log(input);
 
             var docRef = db.collection("users").doc(user.uid);
             docRef.update({

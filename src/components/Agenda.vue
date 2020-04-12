@@ -4,8 +4,16 @@
       <span>Awesome! You added a new event</span>
       <v-btn flat color="white" @click="snackbar=false">Close</v-btn>
     </v-snackbar>
+    <v-snackbar v-model="snackbar2" :timeout="4000" top color="warning">
+      <span>Please inform the creator if you would like to delete an event</span>
+      <v-btn flat color="white" @click="snackbar2=false">Close</v-btn>
+    </v-snackbar>
+    <v-snackbar v-model="snackbar3" :timeout="2000" top color="success">
+      <span>You deleted an event</span>
+      <v-btn flat color="white" @click="snackbar3=false">Close</v-btn>
+    </v-snackbar>
     <div id="left-child-flex">
-      <EventPopup @eventAdded="snackbar=true"/>
+      <EventPopup @eventAdded="snackbar=true" />
 
       <v-layout column>
         <MemberList v-show="displayMemberList"></MemberList>
@@ -53,7 +61,8 @@ import Swal from "sweetalert2";
 
 import ToDoList from "./ToDoList.vue";
 import MemberList from "./MemberList.vue";
-import EventPopup from "./EventPopup.vue"
+import EventPopup from "./EventPopup.vue";
+import firebase from "firebase";
 import db from "@/fb";
 
 export default {
@@ -69,27 +78,46 @@ export default {
     calHeight: 0,
     events: [],
     cal: null,
-    snackbar: false
+    snackbar: false,
+    snackbar2: false,
+    snackbar3: false,
+    projectCreator: ""
   }),
 
   firestore() {
     var self = this;
     return {
-      events: db.collection("masterProjectList").doc(self.$store.state.selectedProject).collection("events")
-    }
+      events: db
+        .collection("masterProjectList")
+        .doc(self.$store.state.selectedProject)
+        .collection("events")
+    };
   },
 
   created() {
     this.setHeight();
     this.displayMemberList = this.$store.state.displayMemberList;
+    var self = this;
   },
 
-  components: { FullCalendar, ToDoList, MemberList, EventPopup},
+  mounted() {
+    var self = this;
+    db.collection("masterProjectList")
+      .doc(self.$store.state.selectedProject)
+      .get()
+      .then(doc => {
+        self.projectCreator = doc.data().creator;
+        // console.log("then part", self.projectCreator);
+        // console.log(doc.data());
+      });
+  },
+
+  components: { FullCalendar, ToDoList, MemberList, EventPopup },
 
   computed: {
     displayMemberList() {
       return this.$store.state.displayMemberList;
-    },
+    }
   },
 
   methods: {
@@ -97,24 +125,44 @@ export default {
       this.calHeight = window.innerHeight * 0.8;
     },
 
-    handleClick(arg) { // deleting event
+    handleClick(arg) {
+      var self = this;
+      // deleting event
       if (confirm("Delete event?")) {
-        let doc_id = arg.event.id;
-        db.collection("masterProjectList")
-          .doc(this.$store.state.selectedProject)
-          .collection("events")
-          .doc(doc_id)
-          .delete()
-          .then(function() {
-            console.log("Project successfully deleted!");
-          })
-          .catch(function(error) {
-            console.error("Error removing project: ", error);
-          });
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            // console.log("after then", self.projectCreator);
+            // console.log("user", user.uid);
+            if (user.uid == self.projectCreator) {
+              let doc_id = arg.event.id;
+              db.collection("masterProjectList")
+                .doc(self.$store.state.selectedProject)
+                .collection("events")
+                .doc(doc_id)
+                .delete()
+                .then(function() {
+                  console.log("Project successfully deleted!");
+                })
+                .catch(function(error) {
+                  console.error("Error removing project: ", error);
+                });
+                self.snackbar3 = true;
+            } else {
+              self.snackbar2 = true;
+              console.log(
+                "Please inform the creator if you would like to delete an event"
+              );
+            }
+          } else {
+            // No user is signed in.
+            console.log("no user hello");
+          }
+        });
       }
     },
 
-    handleSelect(arg) { // take note of start & end, must use Str
+    handleSelect(arg) {
+      // take note of start & end, must use Str
       if (Object.keys(this.$store.getters.member).length != 0) {
         let ev = {
           id: new Date().getTime(),
@@ -124,7 +172,10 @@ export default {
           allDay: arg.allDay,
           color: this.$store.getters.member.memberColor
         };
-        db.collection("masterProjectList").doc(this.$store.state.selectedProject).collection("events").add(ev);
+        db.collection("masterProjectList")
+          .doc(this.$store.state.selectedProject)
+          .collection("events")
+          .add(ev);
       }
     },
 
@@ -209,7 +260,7 @@ export default {
         end: arg.end,
         allDay: false,
         display: "block",
-        color: "khaki",
+        color: "khaki"
         // unique: arg.unique
       };
 
@@ -221,7 +272,6 @@ export default {
           this.dialog = false;
           this.$emit("eventAdded");
         });
-      
     }
   }
 };

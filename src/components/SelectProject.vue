@@ -196,7 +196,7 @@ export default {
                     .collection("members")
                     .doc(user.uid)
                     .update({
-                      memberColor: "red" // default color for user who created project
+                      memberColor: "red" // default color for user who created project,
                     });
                 });
               } else {
