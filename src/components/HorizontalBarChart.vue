@@ -8,7 +8,7 @@ export default {
 
   data: function() {
     return {
-      seed: 1,
+      seed: 3,
       projectList: [],
       tempList: [],
 
@@ -24,12 +24,15 @@ export default {
       },
 
       options: {
+        legend: {display: false},
         title: {
           display: true,
-          text: "Activity in the past 7 days"
+          text: "Total activity (past 7 days)",
+          fontSize: 20
         },
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        beginAtZero: true
       }
     };
   },
@@ -115,9 +118,10 @@ export default {
           this.renderChart(this.dataCollection, this.options);
         }, 1000);
       }, 1000);
+      console.log(this.dataCollection.labels)
   }
   },
-
+  
   mounted() {
     this.eventsData()
   }
