@@ -8,13 +8,12 @@ export default {
 
   data: function() {
     return {
-      seed: 1,
+      seed: 3,
       projectList: [],
       tempList:[],
 
       dataCollection: {
         labels: [],
-        //backgroundColor: ['#feee30', '#49b603'],
         datasets: [
           {
             label: "",
@@ -25,8 +24,10 @@ export default {
       },
       options: {
         title: {
+          tooltips:{display: false},
           display: true,
-          text: "Total time spent on projects"
+          text: "Total time spent on projects",
+          fontSize: 20
         },
         responsive: true,
         maintainAspectRatio: false
@@ -111,6 +112,7 @@ export default {
           this.renderChart(this.dataCollection, this.options);
         }, 1000);
       }, 1000);
+
   }
   },
 

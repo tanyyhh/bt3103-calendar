@@ -1,6 +1,9 @@
 <template>
   <div class="dashboard">
     <h1 class="subheading grey--text">Dashboard</h1>
+    <div class = "bcg">
+    <bar-chart-grouped></bar-chart-grouped>
+    </div>
 
     <div class = "hbc">
     <horizontal-bar-chart></horizontal-bar-chart>
@@ -76,10 +79,12 @@
 import db from "@/fb";
 
 import DoughnutChart from '../components/DoughnutChart.vue'
+import BarChartGrouped from '../components/BarChartGrouped3.vue'
 import HorizontalBarChart from '../components/HorizontalBarChart.vue'
 
 export default {
   components: {
+    BarChartGrouped,
     HorizontalBarChart,
     DoughnutChart,
   }
