@@ -40,13 +40,6 @@ export default {
       snackbar: false
     };
   },
-  // computed: {
-  //   myProjects() {
-  //     return this.projects.filter(project => {
-  //       return project.person === "UserName" && project.status != "complete";
-  //     });
-  //   }
-  // },
   firestore() {
     var self = this;
     return {

@@ -80,7 +80,6 @@ export default {
       });
     }
   },
-  computed: {},
   methods: {
     check(project) {
       return this.proj.includes(project.id);
@@ -117,98 +116,10 @@ export default {
       });
     },
     handleClick(project) {
-      console.log("clicked to dashboard");
-      console.log(project.id);
       this.$store.state.selectedProject = project.id;
       this.$store.state.projectName = project.name;
       this.$store.state.projectCode = project.code;
       this.$router.push("/calendar");
-    },
-    promptUser() {
-      let key = new Date().getTime().toString();
-      this.$fire({
-        title: "Add Project!",
-        type: "question",
-        html:
-          "Module Code" +
-          '<input id="swal-input0" class="swal2-input" placeholder="Give a Module Code!">' +
-          "Project Name" +
-          '<input id="swal-input1" class="swal2-input" placeholder="Give a Name!">' +
-          "Description" +
-          '<input id="swal-input2" class="swal2-input" placeholder="Add a Description!">' +
-          "Due Date" +
-          '<input id="swal-input3" class="swal2-input" placeholder="YYYY-MM-DD">' +
-          "Module Code" +
-          '<input type="date" id="swal-input0" class="swal2-input" placeholder="Give a Module Code!">'
-      }).then(function(result) {
-        if (result.value) {
-          var input = {
-            code: document.getElementById("swal-input0").value,
-            name: document.getElementById("swal-input1").value,
-            desc: document.getElementById("swal-input2").value,
-            due: document.getElementById("swal-input3").value,
-            id: key
-          };
-
-          setTimeout(function() {
-            firebase.auth().onAuthStateChanged(function(user) {
-              if (user) {
-                // User is signed in.
-                console.log(user.uid);
-
-                var docRef = db.collection("users").doc(user.uid);
-                docRef.update({
-                  projects: firebase.firestore.FieldValue.arrayUnion(key)
-                });
-
-                // initialising dummy documents in events, todos collections
-
-                db.collection("masterProjectList")
-                  .doc(key)
-                  .set(input);
-                db.collection("masterProjectList")
-                  .doc(key)
-                  .collection("events")
-                  .add({});
-
-                const todo = {
-                  title: "Example todo",
-                  content: "This is an example todo, feel free to delete this!",
-                  due: "1st Jan 2020",
-                  person: "User",
-                  status: "ongoing"
-                };
-                db.collection("masterProjectList")
-                  .doc(key)
-                  .collection("todos")
-                  .doc(user.uid)
-                  .set(todo);
-
-                docRef.get().then(doc => {
-                  db.collection("masterProjectList")
-                    .doc(key)
-                    .collection("members")
-                    .doc(user.uid)
-                    .set(doc.data());
-
-                  db.collection("masterProjectList")
-                    .doc(key)
-                    .collection("members")
-                    .doc(user.uid)
-                    .update({
-                      memberColor: "red" // default color for user who created project,
-                    });
-                });
-              } else {
-                // No user is signed in.
-                console.log("no user hello");
-              }
-            });
-
-            Swal.fire("Project Added!", "success");
-          }, 1000);
-        }
-      });
     }
   }
 };

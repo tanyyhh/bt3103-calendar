@@ -113,18 +113,7 @@ export default {
       dialog: false
     };
   },
-  // mounted() {
-  //   var self = this;
-  //   firebase.auth().onAuthStateChanged(function(user) {
-  //     if (user) {
-  //       // User is signed in.
-  //       self.person = user.displayName;
-  //     } else {
-  //       // No user is signed in.
-  //       console.log("no user hello");
-  //     }
-  //   });
-  // },
+
   methods: {
     submit() {
       var input = {
@@ -135,30 +124,35 @@ export default {
       };
       this.handleEvent(input);
       this.from = "";
-      this.till = "",
-      this.start = "",
-      this.end = ""
+      (this.till = ""), (this.start = ""), (this.end = "");
     },
     handleEvent(arg) {
       var vm = this;
-      const event = {
-        id: new Date().getTime(),
-        title: arg.title,
-        start: arg.start,
-        end: arg.end,
-        allDay: false,
-        display: "block",
-        color: "khaki"
-      };
-
-      db.collection("masterProjectList")
-        .doc(vm.$store.state.selectedProject)
-        .collection("events")
-        .add(event)
-        .then(() => {
-          this.dialog = false;
-          this.$emit("eventAdded");
-        });
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          const event = {
+            id: new Date().getTime(),
+            title: arg.title,
+            start: arg.start,
+            end: arg.end,
+            allDay: false,
+            color: "khaki",
+            creator: user.uid
+          };
+          console.log("uid:", user.uid, arg, event);
+          db.collection("masterProjectList")
+            .doc(vm.$store.state.selectedProject)
+            .collection("events")
+            .add(event)
+            .then(() => {
+              vm.dialog = false;
+              vm.$emit("eventAdded");
+            });
+        } else {
+          // No user is signed in.
+          console.log("no user hello");
+        }
+      });
     }
   },
   computed: {

@@ -61,20 +61,6 @@ export default {
       if (this.$refs.form.validate()) {
         this.loading = true;
 
-        // const member = {
-        //   name: this.name,
-        //   id: this.id,
-        //   job_scope: this.job_scope,
-        //   memberColor: this.memberColor.toLowerCase(),
-        //   isSelected: false
-        // };
-
-        // db.collection("members")
-        //   .add(member)
-        //   .then(() => {
-        //     this.dialog = false;
-        //     this.$emit("projectAdded");
-        //   });
         var usersRef = db.collection("users");
         var query = usersRef.where("email", "==", this.email);
         query
