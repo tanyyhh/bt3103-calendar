@@ -6,7 +6,7 @@
       <v-spacer></v-spacer>
 
       <v-btn icon @click="toggleList">
-        <v-icon>refresh</v-icon>
+        <v-icon>swap_horiz</v-icon>
       </v-btn>
      
     </v-toolbar>

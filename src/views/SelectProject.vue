@@ -20,8 +20,8 @@
               <div class="font-weight-bold">Due by {{ project.due }}</div>
               <!-- <div class="font-weight-bold">Project id: {{ project.id }}</div> -->
               <v-btn flap color="grey-lighten-4" @click="handleClick(project)">
-                <v-icon left>refresh</v-icon>
-                <span>Go to Dashboard</span>
+                <v-icon left>calendar_today</v-icon>
+                <span>Go to Calendar</span>
               </v-btn>
             </v-card-text>
           </v-card>
@@ -122,7 +122,7 @@ export default {
       this.$store.state.selectedProject = project.id;
       this.$store.state.projectName = project.name;
       this.$store.state.projectCode = project.code;
-      this.$router.push("/dashboard");
+      this.$router.push("/calendar");
     },
     promptUser() {
       let key = new Date().getTime().toString();

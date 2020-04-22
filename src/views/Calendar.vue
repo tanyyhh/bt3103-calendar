@@ -5,7 +5,7 @@
       <v-btn flat color="white" @click="snackbar=false">Close</v-btn>
     </v-snackbar>
     <v-snackbar v-model="snackbar2" :timeout="4000" top color="warning">
-      <span>Please inform the creator if you would like to delete an event</span>
+      <span>Please inform the project or event creator if you would like to delete this event</span>
       <v-btn flat color="white" @click="snackbar2=false">Close</v-btn>
     </v-snackbar>
     <v-snackbar v-model="snackbar3" :timeout="2000" top color="success">
@@ -133,7 +133,12 @@ export default {
           if (user) {
             // console.log("after then", self.projectCreator);
             // console.log("user", user.uid);
-            if (user.uid == self.projectCreator) {
+            console.log("user:", user.uid, "creator:", arg.event.creator);
+            console.log(arg.event.extendedProps.creator);
+            if (
+              user.uid == self.projectCreator ||
+              user.uid == arg.event.extendedProps.creator
+            ) {
               let doc_id = arg.event.id;
               db.collection("masterProjectList")
                 .doc(self.$store.state.selectedProject)
@@ -146,7 +151,7 @@ export default {
                 .catch(function(error) {
                   console.error("Error removing project: ", error);
                 });
-                self.snackbar3 = true;
+              self.snackbar3 = true;
             } else {
               self.snackbar2 = true;
               console.log(
@@ -163,19 +168,28 @@ export default {
 
     handleSelect(arg) {
       // take note of start & end, must use Str
+      let vm = this;
       if (Object.keys(this.$store.getters.member).length != 0) {
-        let ev = {
-          id: new Date().getTime(),
-          title: "",
-          start: arg.startStr,
-          end: arg.endStr,
-          allDay: arg.allDay,
-          color: this.$store.getters.member.memberColor
-        };
-        db.collection("masterProjectList")
-          .doc(this.$store.state.selectedProject)
-          .collection("events")
-          .add(ev);
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            let ev = {
+              id: new Date().getTime(),
+              title: "",
+              start: arg.startStr,
+              end: arg.endStr,
+              allDay: arg.allDay,
+              color: vm.$store.getters.member.memberColor,
+              creator: user.uid
+            };
+            db.collection("masterProjectList")
+              .doc(vm.$store.state.selectedProject)
+              .collection("events")
+              .add(ev);
+          } else {
+            // No user is signed in.
+            console.log("no user hello");
+          }
+        });
       }
     },
 
@@ -253,25 +267,34 @@ export default {
 
     submit(arg) {
       var vm = this;
-      const event = {
-        id: arg.id,
-        title: arg.title,
-        start: arg.start,
-        end: arg.end,
-        allDay: false,
-        display: "block",
-        color: "khaki"
-        // unique: arg.unique
-      };
 
-      db.collection("masterProjectList")
-        .doc(vm.$store.state.selectedProject)
-        .collection("events")
-        .add(event)
-        .then(() => {
-          this.dialog = false;
-          this.$emit("eventAdded");
-        });
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          const event = {
+            id: arg.id,
+            title: arg.title,
+            start: arg.start,
+            end: arg.end,
+            allDay: false,
+            display: "block",
+            color: "khaki",
+            creator: user.uid
+            // unique: arg.unique
+          };
+
+          db.collection("masterProjectList")
+            .doc(vm.$store.state.selectedProject)
+            .collection("events")
+            .add(event)
+            .then(() => {
+              this.dialog = false;
+              this.$emit("eventAdded");
+            });
+        } else {
+          // No user is signed in.
+          console.log("no user hello");
+        }
+      });
     }
   }
 };
